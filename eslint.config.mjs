@@ -14,4 +14,20 @@ export default tseslint.config(
       '@typescript-eslint/no-unused-vars': ['warn', { argsIgnorePattern: '^_' }],
     },
   },
+  {
+    // Lambda ハンドラ（CommonJS / Node.js ランタイム上で動作）
+    files: ['**/lambda/**/*.js', '**/*.cjs'],
+    languageOptions: {
+      sourceType: 'commonjs',
+      globals: {
+        exports: 'writable',
+        module: 'writable',
+        require: 'readonly',
+        process: 'readonly',
+        console: 'readonly',
+        __dirname: 'readonly',
+        __filename: 'readonly',
+      },
+    },
+  },
 );

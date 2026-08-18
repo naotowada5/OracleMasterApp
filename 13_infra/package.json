@@ -1,0 +1,33 @@
+{
+  "name": "@oracle-master-app/infra",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Oracle Master 資格学習PWA — AWS CDK (TypeScript) インフラ定義",
+  "engines": {
+    "node": ">=22",
+    "npm": ">=10"
+  },
+  "bin": {
+    "infra": "bin/oracle-master-app.js"
+  },
+  "scripts": {
+    "build": "tsc",
+    "watch": "tsc -w",
+    "synth": "cdk synth",
+    "synth:dev": "cdk synth -c env=dev",
+    "diff:dev": "cdk diff -c env=dev",
+    "deploy:dev": "cdk deploy -c env=dev --all",
+    "deploy:stg": "cdk deploy -c env=stg --all",
+    "deploy:prod": "cdk deploy -c env=prod --all"
+  },
+  "devDependencies": {
+    "@types/node": "^22.10.0",
+    "aws-cdk": "^2.1000.0",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.5.4"
+  },
+  "dependencies": {
+    "aws-cdk-lib": "^2.170.0",
+    "constructs": "^10.3.0"
+  }
+}
