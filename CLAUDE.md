@@ -4,9 +4,26 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Current state
 
-This repository currently contains **no implementation code**. The directories `11_frontend`, `12_backend`, `13_infra`, and `14_script` are empty placeholders for future work. The only substantive content is the requirements document at `01_docs/01_ra/requirements3.md` (v1.1, 2026-07-05), which is the source of truth for everything below.
+Requirements (`01_docs/01_ra/requirements3.md`, v1.3) and the Phase 1 basic design (`01_docs/02_sd/`) are complete and are the source of truth for everything below. Work is tracked task-by-task in `01_docs/03_dev/開発タスク一覧.md` — check it before starting anything, and tick boxes as tasks land.
 
-There are no build/lint/test commands yet because no project has been scaffolded. When frontend/backend/infra code is added, this file should be updated with the actual commands (npm scripts, CDK commands, test runners, etc.) rather than assumed ones.
+Implemented so far: **`13_infra`** (AWS CDK, Step 1 / T1-1〜T1-6). `11_frontend`, `12_backend`, and `14_script` are still empty placeholders.
+
+Root commands (repo-wide lint/format):
+
+```bash
+npm run lint
+npm run format:check
+```
+
+Infra commands (run inside `13_infra`; see `13_infra/README.md`):
+
+```bash
+npm run synth:dev
+npm run diff:dev
+npm run deploy:dev
+```
+
+Deploys target the environment given by the `env` context (`dev`/`stg`/`prod`); `stg` and `prod` additionally require `-c frontendOrigin=https://…` for CORS.
 
 ## Project overview
 
@@ -24,7 +41,7 @@ Features tagged Phase 2/3 in the requirements doc (問題作成・インポー�
 
 ```
 Browser (PWA) --HTTPS/REST--> API Gateway (Cognito authorizer on ALL routes)
-                                    --> Lambda (Node.js 20.x)
+                                    --> Lambda (Node.js 22.x)
                                           --> DynamoDB (questions/progress data)
                                           --> S3 (images, JSON import files)
                                           --> Anthropic Claude API (Phase 3 only)
@@ -39,17 +56,21 @@ Key architectural decisions to preserve:
 
 ## Data model (DynamoDB, §6)
 
-7 tables, single-table-per-entity design (not a single-table DynamoDB pattern):
+7 tables, single-table-per-entity design (not a single-table DynamoDB pattern).
+
+Table names follow `OR_{type}_{NAME}` where type is `M` (master), `T` (transaction), or `W` (work — none in Phase 1). Deployed names carry an environment prefix (`dev-OR_M_QUESTION`). See `01_docs/02_sd/04_共通設計/命名規約.md` §2.
 
 | Table | PK | Key GSIs | Notes |
 |---|---|---|---|
-| QualificationMaster | qualificationId (e.g. `1Z0-085-JPN`) | — | scanned (small dataset) |
-| CategoryMaster | categoryId | qualificationId | 大問カテゴリ |
-| Questions | questionId | qualificationId, categoryId | questionType: `single`/`multiple`; correctCount used for multi-select |
-| Choices | choiceId | questionId | up to 10 choices per question |
-| Users | userId (= Cognito sub) | email | minimal PII — most identity data lives in Cognito |
-| ExamSessions | sessionId | userId | status: `in_progress`/`completed`/`expired` |
-| AnswerHistories | historyId | sessionId | selectedChoiceIds is a list; isCorrect = exact set match |
+| OR_M_QUALIFICATION | qualificationId (e.g. `1Z0-085-JPN`) | — | scanned (small dataset) |
+| OR_M_CATEGORY | categoryId | qualificationId | 大問カテゴリ |
+| OR_M_QUESTION | questionId | qualificationId, categoryId | questionType: `single`/`multiple`; correctCount used for multi-select |
+| OR_M_CHOICE | choiceId | questionId | up to 10 choices per question |
+| OR_M_USER | userId (= Cognito sub) | email | minimal PII — most identity data lives in Cognito |
+| OR_T_EXAM_SESSION | sessionId | userId | status: `in_progress`/`completed`/`expired` |
+| OR_T_ANSWER_HISTORY | historyId | sessionId | selectedChoiceIds is a list; isCorrect = exact set match |
+
+**Every table carries the four common audit columns**: `createdAt` (登録日), `createdBy` (登録者), `updatedAt` (更新日), `updatedBy` (更新者). `createdBy`/`updatedBy` are the Cognito `sub` for authenticated API writes, or the literal `SYSTEM` for seed-script/system-triggered writes — never a client-supplied value. They are internal audit fields and are not returned in API responses (the one exception is `createdAt` in `GET /users/me`). See `01_docs/02_sd/03_データベース設計/テーブル一覧.md` §共通項目.
 
 See §6.3 in the requirements doc for the full access-pattern-to-GSI mapping before adding new queries.
 
@@ -63,7 +84,7 @@ The question-import JSON schema (§7.2) is used both by the future Phase 3 impor
 
 - Frontend (Phase 1): React + Web App Manifest/Service Worker (PWA)
 - Frontend (Phase 2): React Native or Flutter, built on the Phase 1 React codebase
-- Backend: Node.js 20.x on Lambda
+- Backend: Node.js 22.x on Lambda
 - IaC: AWS CDK (TypeScript)
 - CI/CD: AWS Amplify / GitHub Actions
 - Tests: Jest (unit), Playwright (E2E, Phase 1)

@@ -1,8 +1,9 @@
-# T-04 Choices（選択肢テーブル）
+# T-04 OR_M_CHOICE（選択肢テーブル）
 
 | 項目 | 内容 |
 |---|---|
-| テーブル名 | Choices |
+| テーブル名 | OR_M_CHOICE |
+| テーブル種類 | M（マスタテーブル） |
 | 概要 | 各問題に紐づく選択肢（最大10択）を管理する |
 | Phase | Phase 1 |
 | プライマリキー | `choiceId`（パーティションキーのみ） |
@@ -18,6 +19,12 @@
 | choiceText | String | | 必須 | 選択肢の文言 |
 | isCorrect | Boolean | | 必須 | 正解フラグ |
 | sortOrder | Number | | 必須 | 表示順（シャッフル前の基準順） |
+| createdAt | String | | 必須 | 【共通項目・登録日】ISO 8601。親の `OR_M_QUESTION` と同一値を設定 |
+| createdBy | String | | 必須 | 【共通項目・登録者】親の `OR_M_QUESTION` と同一値を設定 |
+| updatedAt | String | | 必須 | 【共通項目・更新日】ISO 8601 |
+| updatedBy | String | | 必須 | 【共通項目・更新者】 |
+
+共通項目（`createdAt` / `createdBy` / `updatedAt` / `updatedBy`）の設定規則は [テーブル一覧](../テーブル一覧.md) §共通項目を参照。
 
 ## 2. GSI定義
 
@@ -34,7 +41,11 @@
   "label": "A",
   "choiceText": "SELECT * FROM employees;",
   "isCorrect": true,
-  "sortOrder": 1
+  "sortOrder": 1,
+  "createdAt": "2026-06-01T00:00:00.000Z",
+  "createdBy": "SYSTEM",
+  "updatedAt": "2026-06-01T00:00:00.000Z",
+  "updatedBy": "SYSTEM"
 }
 ```
 
@@ -49,8 +60,9 @@
 
 - 1問あたりの選択肢は2〜10件（要件定義書 §7.2 スキーマの `minItems`/`maxItems`）。
 - `questionType=single` の問題は `isCorrect=true` の選択肢が必ず1件。
-- `questionType=multiple` の問題は `isCorrect=true` の選択肢が2件以上（`Questions.correctCount` と件数が一致すること）。
+- `questionType=multiple` の問題は `isCorrect=true` の選択肢が2件以上（`OR_M_QUESTION.correctCount` と件数が一致すること）。
 
 ## 6. 備考
 
-- 選択肢の登録は `Questions` の登録と同一のDynamoDB TransactWriteItemsで行い、孤立したChoicesレコードが発生しないようにする（[ER図](../ER図.md) の参照整合性方針参照）。
+- 選択肢の登録は `OR_M_QUESTION` の登録と同一のDynamoDB TransactWriteItemsで行い、孤立した `OR_M_CHOICE` レコードが発生しないようにする（[ER図](../ER図.md) の参照整合性方針参照）。共通項目も親の問題レコードと同一値で揃える。
+- 共通項目は監査用の内部項目であり、[API-03](../../02_API設計/個別API設計書/API-03_問題一覧取得.md)/[API-04](../../02_API設計/個別API設計書/API-04_ランダム出題リスト生成.md) のレスポンス（`choices[]`）には含めない。

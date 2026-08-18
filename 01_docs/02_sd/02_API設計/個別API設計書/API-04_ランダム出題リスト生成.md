@@ -6,7 +6,7 @@
 | Phase | Phase 1 |
 | 認証 | 必要（Cognito） |
 | 利用画面 | S-05（出題設定） |
-| 関連テーブル | Questions, Choices |
+| 関連テーブル | OR_M_QUESTION, OR_M_CHOICE |
 
 ## 1. 概要
 
@@ -62,9 +62,9 @@
 ## 4. 処理フロー
 
 1. `qualificationId` の必須チェック、`questionCount` の範囲チェック（1〜100、任意）。
-2. `Questions` テーブルの GSI（`qualificationId`）を Query し、`isActive=true` の問題を取得。
+2. `OR_M_QUESTION` テーブルの GSI（`qualificationId`）を Query し、`isActive=true` の問題を取得。
 3. 取得件数が `questionCount` 以上の場合はランダムに `questionCount` 件を抽出。件数が満たない場合は取得できた全件を返し、`actualCount` にその件数を設定する。
-4. 各問題について `Choices` テーブルを Query し、`isCorrect` を除いた選択肢情報を結合する。
+4. 各問題について `OR_M_CHOICE` テーブルを Query し、`isCorrect` を除いた選択肢情報を結合する。
 5. 選択肢の表示順は `sortOrder` に従うか、クライアント側でシャッフルするかは詳細設計で決定する（本APIは `sortOrder` 順のまま返す）。
 
 ## 5. エラー
@@ -79,4 +79,4 @@
 ## 6. 備考
 
 - 本APIのレスポンスには正解情報を一切含めない。正誤判定は [API-08 セッション更新](API-08_セッション更新.md) にてサーバー側で行う。
-- 本APIは `ExamSessions`/`AnswerHistories` を更新しない（出題リストの生成のみ）。セッションの作成は [API-07](API-07_試験セッション開始.md) で別途行う。
+- 本APIは `OR_T_EXAM_SESSION`/`OR_T_ANSWER_HISTORY` を更新しない（出題リストの生成のみ）。セッションの作成は [API-07](API-07_試験セッション開始.md) で別途行う。

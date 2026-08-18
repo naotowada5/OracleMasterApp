@@ -6,7 +6,7 @@
 | Phase | Phase 1 |
 | 認証 | 必要（Cognito） |
 | 利用画面 | S-08, S-04（Phase3） |
-| 関連テーブル | CategoryMaster |
+| 関連テーブル | OR_M_CATEGORY |
 
 ## 1. 概要
 
@@ -49,7 +49,7 @@
 ## 4. 処理フロー
 
 1. `qualificationId` の必須チェック。
-2. `CategoryMaster` テーブルの GSI（`qualificationId`）に対して Query。
+2. `OR_M_CATEGORY` テーブルの GSI（`qualificationId`）に対して Query。
 3. `sortOrder` 昇順にソートして返却。
 
 ## 5. エラー
@@ -58,7 +58,7 @@
 |---|---|---|
 | 400 | `VALIDATION_ERROR` | `qualificationId` 未指定 |
 | 401 | `UNAUTHORIZED` | トークン無効 |
-| 404 | `NOT_FOUND` | 指定した `qualificationId` が `QualificationMaster` に存在しない（該当資格自体が無い場合。カテゴリが0件の場合は空配列を返し404にはしない） |
+| 404 | `NOT_FOUND` | 指定した `qualificationId` が `OR_M_QUALIFICATION` に存在しない（該当資格自体が無い場合。カテゴリが0件の場合は空配列を返し404にはしない） |
 | 500 | `INTERNAL_ERROR` | DynamoDB Query 失敗等 |
 
 ## 6. 備考
