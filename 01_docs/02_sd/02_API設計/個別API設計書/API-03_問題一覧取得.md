@@ -6,7 +6,7 @@
 | Phase | Phase 1 |
 | 認証 | 必要（Cognito） |
 | 利用画面 | S-08（問題閲覧） |
-| 関連テーブル | Questions, Choices |
+| 関連テーブル | OR_M_QUESTION, OR_M_CHOICE |
 
 ## 1. 概要
 
@@ -63,8 +63,8 @@
 ## 4. 処理フロー
 
 1. `qualificationId` の必須チェック。
-2. `categoryId` 指定時は `Questions` テーブルの GSI（`categoryId`）を Query、未指定時は GSI（`qualificationId`）を Query。
-3. 取得した各問題について `Choices` テーブルの GSI（`questionId`）を Query し、選択肢を結合する（`sortOrder` 昇順）。
+2. `categoryId` 指定時は `OR_M_QUESTION` テーブルの GSI（`categoryId`）を Query、未指定時は GSI（`qualificationId`）を Query。
+3. 取得した各問題について `OR_M_CHOICE` テーブルの GSI（`questionId`）を Query し、選択肢を結合する（`sortOrder` 昇順）。
 4. `isActive=true` の問題のみ返却する。
 5. `limit`/`nextToken` に基づきページングを行う。
 
@@ -78,5 +78,5 @@
 
 ## 6. 備考
 
-- 本APIは学習目的の閲覧用であり、`ExamSessions`/`AnswerHistories` は一切更新しない。
+- 本APIは学習目的の閲覧用であり、`OR_T_EXAM_SESSION`/`OR_T_ANSWER_HISTORY` は一切更新しない。
 - 出題（採点対象）には本APIを使わず、[API-04](API-04_ランダム出題リスト生成.md) を使用すること（正解情報の露出範囲が異なるため）。

@@ -4,7 +4,7 @@
   "private": true,
   "description": "Oracle Master 資格学習PWA（monorepo root）",
   "engines": {
-    "node": ">=20 <21",
+    "node": ">=22",
     "npm": ">=10"
   },
   "scripts": {

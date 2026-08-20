@@ -6,7 +6,7 @@
 | Phase | Phase 3（本設計はインターフェース定義のみ。Phase1・Phase2では未実装） |
 | 認証 | 必要（Cognito） |
 | 利用画面 | S-04（Phase3） |
-| 関連テーブル | Questions, Choices（保存時のみ） |
+| 関連テーブル | OR_M_QUESTION, OR_M_CHOICE（保存時のみ） |
 | 外部連携 | Anthropic Claude API |
 
 > **注意:** Phase 1・Phase 2 では Lambda 実装・API Gateway ルート登録を行わない。
@@ -70,7 +70,7 @@
 
 1. 入力バリデーション（`count` は 1〜20。要件定義書 §8.1 の AI 生成APIレスポンス目標 10秒以内を考慮した上限）。
 2. `mode=preview` の場合: プロンプトを組み立て Anthropic Claude API を呼び出し、生成結果をパースしてレスポンスとして返す（DynamoDB へは未保存）。
-3. `mode=save` の場合: リクエストで受け取った編集済み問題データを [API-05 問題インポート](API-05_問題インポート.md) と同様のロジックで `Questions`/`Choices` に登録する。
+3. `mode=save` の場合: リクエストで受け取った編集済み問題データを [API-05 問題インポート](API-05_問題インポート.md) と同様のロジックで `OR_M_QUESTION`/`OR_M_CHOICE` に登録する。
 
 ## 5. エラー
 

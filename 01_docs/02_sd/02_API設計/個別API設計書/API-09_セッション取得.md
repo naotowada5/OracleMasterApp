@@ -6,7 +6,7 @@
 | Phase | Phase 1 |
 | 認証 | 必要（Cognito） |
 | 利用画面 | S-09（解答結果） |
-| 関連テーブル | ExamSessions, AnswerHistories |
+| 関連テーブル | OR_T_EXAM_SESSION, OR_T_ANSWER_HISTORY |
 
 ## 1. 概要
 
@@ -47,14 +47,14 @@
 | `totalQuestions` | Number | 総問題数 |
 | `correctCount` | Number | 正解数 |
 | `status` | String | `in_progress` / `completed` / `expired` |
-| `answers[]` | Array | `AnswerHistories` を `answeredAt` 昇順（＝出題順相当）で並べたもの |
+| `answers[]` | Array | `OR_T_ANSWER_HISTORY` を `answeredAt` 昇順（＝出題順相当）で並べたもの |
 | `answers[].isCorrect` | Boolean | 問題別正誤（S-09の「問題別正誤一覧」表示に使用） |
 
 ## 4. 処理フロー
 
-1. `sessionId` の存在確認、リクエストユーザーと `ExamSessions.userId` の一致確認（不一致は403）。
-2. `ExamSessions` から対象レコードを取得。
-3. `AnswerHistories` テーブルの GSI（`sessionId`）を Query し、`answeredAt` 昇順にソートして結合する。
+1. `sessionId` の存在確認、リクエストユーザーと `OR_T_EXAM_SESSION.userId` の一致確認（不一致は403）。
+2. `OR_T_EXAM_SESSION` から対象レコードを取得。
+3. `OR_T_ANSWER_HISTORY` テーブルの GSI（`sessionId`）を Query し、`answeredAt` 昇順にソートして結合する。
 4. 正答率はクライアント側で `correctCount / totalQuestions` から算出する（サーバー側で算出済みの値を含めてもよい。詳細設計時に確定）。
 
 ## 5. エラー
@@ -68,4 +68,4 @@
 
 ## 6. 備考
 
-- 未回答のまま時間切れとなった問題（`AnswerHistories` にレコードがない `questionId`）は、S-09側で「未回答（✕扱い）」として表示する。`totalQuestions` と `answers` 件数の差分がその件数に相当する。
+- 未回答のまま時間切れとなった問題（`OR_T_ANSWER_HISTORY` にレコードがない `questionId`）は、S-09側で「未回答（✕扱い）」として表示する。`totalQuestions` と `answers` 件数の差分がその件数に相当する。
