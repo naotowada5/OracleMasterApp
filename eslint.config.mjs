@@ -15,8 +15,8 @@ export default tseslint.config(
     },
   },
   {
-    // Lambda ハンドラ（CommonJS / Node.js ランタイム上で動作）
-    files: ['**/lambda/**/*.js', '**/*.cjs'],
+    // CommonJS で動作するファイル（Lambdaハンドラ、Jest設定など）
+    files: ['**/lambda/**/*.js', '**/*.cjs', '**/jest.config.js'],
     languageOptions: {
       sourceType: 'commonjs',
       globals: {
@@ -27,6 +27,17 @@ export default tseslint.config(
         console: 'readonly',
         __dirname: 'readonly',
         __filename: 'readonly',
+      },
+    },
+  },
+  {
+    // Node.js 上で直接実行するESMスクリプト（ビルド・データ投入スクリプト等）
+    files: ['**/*.mjs'],
+    languageOptions: {
+      sourceType: 'module',
+      globals: {
+        process: 'readonly',
+        console: 'readonly',
       },
     },
   },
