@@ -25,6 +25,9 @@ tests/
 | `get-current-user.ts` | API-10 | `GET /users/me` |
 | `list-questions.ts` | API-03 | `GET /questions` |
 | `generate-random-questions.ts` | API-04 | `POST /questions/random` |
+| `create-session.ts` | API-07 | `POST /sessions` |
+| `update-session.ts` | API-08 | `PUT /sessions/{sessionId}` |
+| `get-session.ts` | API-09 | `GET /sessions/{sessionId}` |
 
 ## 共通レイヤー（`src/common`）
 
@@ -59,6 +62,7 @@ export const handler = withErrorHandling('API-01', async (event) => {
 - **共通項目の登録者・更新者はクライアント指定値を使わない。** 認証済みAPIでは Cognito の `sub`、システム起因の書き込みでは `SYSTEM_ACTOR` を設定する
 - **共通項目はAPIレスポンスに含めない。** `stripAuditFields` で除去する（`GET /users/me` の `createdAt` のみ `keep` に指定して残す）
 - **ログにメールアドレス・表示名を出力しない。** `logger` が自動的にマスクするが、マスク対象キーは小文字で定義すること
+- **採点は必ずサーバー側で行う。** 正解集合は `OR_M_CHOICE` から算出し、選択集合との**完全一致のみ正解**とする（要件定義書 F-04、部分点なし）。判定ロジックは `services/scoring-service.ts` に集約している
 - **CORSヘッダは Lambda 側でも付与する。** API Gateway が処理するのはプリフライト（OPTIONS）のみで、実リクエストのレスポンスには `requestOrigin(event)` を渡す必要がある
 
 ## 環境変数

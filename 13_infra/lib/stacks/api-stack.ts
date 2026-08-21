@@ -46,8 +46,6 @@ interface ApiDefinition {
  * 対応設計書: 01_docs/02_sd/02_API設計/API共通設計.md, API一覧.md
  *
  * Phase1対象の8エンドポイントを全て Cognito オーソライザー付きで登録する。
- * 未実装のAPIはダミーLambdaに接続しておき、実装が済んだものから個別の
- * Lambda関数に差し替える。
  * Phase3対象の /questions/import・/questions/generate は登録しない（API一覧）。
  */
 export class ApiStack extends Stack {
@@ -165,8 +163,33 @@ export class ApiStack extends Stack {
       readWriteTables: [],
     });
 
-    // 未実装API（T2-4 で個別関数に差し替える）
-    const placeholder = this.createPlaceholderFunction();
+    // ------------------------------------------------------------------
+    // 実装済みAPI（T2-4 セッション・採点系）
+    // ------------------------------------------------------------------
+    const createSession = this.createApiFunction({
+      apiId: 'API-07',
+      id: 'CreateSessionFunction',
+      entry: 'create-session',
+      readTables: [],
+      readWriteTables: ['OR_T_EXAM_SESSION'],
+    });
+
+    const updateSession = this.createApiFunction({
+      apiId: 'API-08',
+      id: 'UpdateSessionFunction',
+      entry: 'update-session',
+      // 採点のため選択肢の読み取りが必要。正解集合は必ずサーバー側で算出する
+      readTables: ['OR_M_CHOICE'],
+      readWriteTables: ['OR_T_EXAM_SESSION', 'OR_T_ANSWER_HISTORY'],
+    });
+
+    const getSession = this.createApiFunction({
+      apiId: 'API-09',
+      id: 'GetSessionFunction',
+      entry: 'get-session',
+      readTables: ['OR_T_EXAM_SESSION', 'OR_T_ANSWER_HISTORY'],
+      readWriteTables: [],
+    });
 
     // ------------------------------------------------------------------
     // ルート登録（API一覧 の API-01〜API-04, API-07〜API-10）
@@ -195,14 +218,14 @@ export class ApiStack extends Stack {
       methodOptions,
     );
 
-    // API-07 POST /sessions（未実装）
+    // API-07 POST /sessions
     const sessions = this.restApi.root.addResource('sessions');
-    sessions.addMethod('POST', new apigateway.LambdaIntegration(placeholder), methodOptions);
+    sessions.addMethod('POST', new apigateway.LambdaIntegration(createSession), methodOptions);
 
-    // API-08 PUT /sessions/{sessionId}, API-09 GET /sessions/{sessionId}（未実装）
+    // API-08 PUT /sessions/{sessionId}, API-09 GET /sessions/{sessionId}
     const sessionById = sessions.addResource('{sessionId}');
-    sessionById.addMethod('GET', new apigateway.LambdaIntegration(placeholder), methodOptions);
-    sessionById.addMethod('PUT', new apigateway.LambdaIntegration(placeholder), methodOptions);
+    sessionById.addMethod('GET', new apigateway.LambdaIntegration(getSession), methodOptions);
+    sessionById.addMethod('PUT', new apigateway.LambdaIntegration(updateSession), methodOptions);
 
     // API-10 GET /users/me
     const users = this.restApi.root.addResource('users');
@@ -269,27 +292,6 @@ export class ApiStack extends Stack {
     }
 
     return fn;
-  }
-
-  /** 未実装APIのつなぎ。T2-4 完了時点で削除する */
-  private createPlaceholderFunction(): lambda.Function {
-    const logGroup = new logs.LogGroup(this, 'PlaceholderFunctionLogGroup', {
-      logGroupName: `/aws/lambda/oracle-master-app-${this.config.envName}-placeholder`,
-      retention: this.config.logRetention,
-      removalPolicy: this.config.removalPolicy,
-    });
-
-    return new lambda.Function(this, 'PlaceholderFunction', {
-      functionName: `oracle-master-app-${this.config.envName}-placeholder`,
-      description: '未実装APIのつなぎ（T2-3・T2-4 で個別関数に差し替える）',
-      runtime: lambda.Runtime.NODEJS_22_X,
-      handler: 'index.handler',
-      code: lambda.Code.fromAsset(path.join(__dirname, '..', 'lambda', 'placeholder')),
-      timeout: Duration.seconds(10),
-      memorySize: 256,
-      logGroup,
-      environment: { ENV_NAME: this.config.envName },
-    });
   }
 
   private requireTable(logicalName: string): dynamodb.ITableV2 {

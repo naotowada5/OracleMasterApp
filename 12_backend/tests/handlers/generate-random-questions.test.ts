@@ -86,7 +86,8 @@ describe('API-04 ランダム出題リスト生成', () => {
   beforeEach(() => {
     process.env.TABLE_NAME_PREFIX = 'dev';
     process.env.LOG_LEVEL = 'ERROR';
-    jest.clearAllMocks();
+    // mockResolvedValueOnce のキューを次のテストへ持ち越さないため実装ごとリセットする
+    jest.resetAllMocks();
   });
 
   it('qualificationId 未指定は 400', async () => {
