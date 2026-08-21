@@ -1,8 +1,8 @@
 # Oracle Master 資格問題アプリ 要件定義書
 
-**文書バージョン:** 1.1
+**文書バージョン:** 1.3
 **作成日:** 2026年5月19日
-**改訂日:** 2026年7月5日
+**改訂日:** 2026年8月18日
 **ステータス:** 改訂ドラフト
 
 ---
@@ -13,6 +13,8 @@
 |---|---|---|
 | 1.0 | 2026-05-19 | 初版作成 |
 | 1.1 | 2026-07-05 | ヒアリングに基づき以下を反映:<br>・Phase1認証方式をCognitoありで確定<br>・プラットフォーム戦略をPWA/Webファーストに変更(ネイティブ化はPhase2)<br>Phase3実装と明記<br>・Phase1初期データ投入方法(開発者スクリプトによる直接投入)を明記<br>・複数選択問題の採点仕様(完全一致のみ正解)を明記<br>・画面ID(S-04〜S-09)の不整合を修正 |
+| 1.2 | 2026-08-18 | 基本設計での決定を反映:<br>・DynamoDBテーブル名を命名規約 `OR_{テーブル種類}_{テーブル名}`（M=マスタ / T=トランザクション / W=ワーク）に統一（§6.1, §6.2, §6.3）<br>・全テーブルに共通項目（登録日 `createdAt` / 登録者 `createdBy` / 更新日 `updatedAt` / 更新者 `updatedBy`）を追加（§6.2） |
+| 1.3 | 2026-08-18 | Lambdaランタイムを Node.js 20.x から **22.x** に変更（§5.2, §10.1）。20.x が 2026-04-30 に非推奨化され、2027-02-01 以降は関数の新規作成が不可となるため |
 
 ---
 
@@ -334,7 +336,7 @@ Phase1 は上記 4 資格すべてに対応する。ただし、Phase1 リリー
 |---|---|---|
 | Amazon Cognito | ユーザー認証 | User Pool + Identity Pool。JWT トークン発行 |
 | Amazon API Gateway | REST API 管理 | ステージ: dev / prod。Cognito オーソライザー設定 |
-| AWS Lambda | ビジネスロジック | Node.js 20.x。問題取得・採点・（Phase3）AI 問題生成・AI解説 |
+| AWS Lambda | ビジネスロジック | Node.js 22.x。問題取得・採点・（Phase3）AI 問題生成・AI解説 |
 | Amazon DynamoDB | データストア | オンデマンドキャパシティ。7テーブル構成 |
 | Amazon S3 | ファイルストレージ | 解説画像・JSON インポートファイル保存 |
 | AWS Amplify | ホスティング / CD | Web（PWA）のビルド・配布管理 |
@@ -346,19 +348,32 @@ Phase1 は上記 4 資格すべてに対応する。ただし、Phase1 リリー
 
 ### 6.1 テーブル一覧
 
-| テーブル名 | 概要 |
-|---|---|
-| QualificationMaster | 資格マスタ |
-| CategoryMaster | 大問カテゴリマスタ |
-| Questions | 問題テーブル |
-| Choices | 選択肢テーブル |
-| Users | ユーザーテーブル |
-| ExamSessions | 試験セッションテーブル |
-| AnswerHistories | 回答履歴テーブル |
+テーブル名は `OR_{テーブル種類}_{テーブル名}` の命名規約に従う。テーブル種類は `M`=マスタテーブル / `T`=トランザクションテーブル / `W`=ワークテーブルとする（Phase1 では `W` に該当するテーブルはない）。実際のデプロイ時は環境プレフィックス（`dev-` / `stg-` / `prod-`）を付与する。
+
+| テーブル名 | 種類 | 概要 |
+|---|---|---|
+| OR_M_QUALIFICATION | M | 資格マスタ |
+| OR_M_CATEGORY | M | 大問カテゴリマスタ |
+| OR_M_QUESTION | M | 問題テーブル |
+| OR_M_CHOICE | M | 選択肢テーブル |
+| OR_M_USER | M | ユーザーテーブル |
+| OR_T_EXAM_SESSION | T | 試験セッションテーブル |
+| OR_T_ANSWER_HISTORY | T | 回答履歴テーブル |
 
 ### 6.2 テーブル詳細
 
-#### QualificationMaster（資格マスタ）
+#### 共通項目（全テーブル必須）
+
+以下の4項目は全テーブルに設定する。各テーブルの属性定義にも再掲する。
+
+| 論理名 | 属性名 | 型 | 説明 |
+|---|---|---|---|
+| 登録日 | createdAt | String | レコード作成日時（ISO 8601, UTC） |
+| 登録者 | createdBy | String | レコードを作成した主体の識別子。認証済みAPI経由は Cognito `sub`、初期データ投入スクリプト等のシステム起因は `SYSTEM` |
+| 更新日 | updatedAt | String | レコード最終更新日時（ISO 8601, UTC）。作成時は `createdAt` と同値 |
+| 更新者 | updatedBy | String | レコードを最後に更新した主体の識別子。作成時は `createdBy` と同値 |
+
+#### OR_M_QUALIFICATION（資格マスタ）
 
 | 属性名 | 型 | キー | 説明 |
 |---|---|---|---|
@@ -366,9 +381,12 @@ Phase1 は上記 4 資格すべてに対応する。ただし、Phase1 リリー
 | name | String | | 資格名称 例: `Oracle Master Bronze DBA` |
 | level | String | | `bronze` / `silver` / `gold` |
 | isActive | Boolean | | 有効/無効フラグ |
-| createdAt | String | | ISO 8601 形式 |
+| createdAt | String | | 【共通項目】登録日（ISO 8601 形式） |
+| createdBy | String | | 【共通項目】登録者 |
+| updatedAt | String | | 【共通項目】更新日 |
+| updatedBy | String | | 【共通項目】更新者 |
 
-#### CategoryMaster（大問カテゴリマスタ）
+#### OR_M_CATEGORY（大問カテゴリマスタ）
 
 | 属性名 | 型 | キー | 説明 |
 |---|---|---|---|
@@ -376,8 +394,12 @@ Phase1 は上記 4 資格すべてに対応する。ただし、Phase1 リリー
 | qualificationId | String | GSI | 資格 ID（外部参照） |
 | categoryName | String | | 例: `SELECT文の基礎` |
 | sortOrder | Number | | 表示順 |
+| createdAt | String | | 【共通項目】登録日 |
+| createdBy | String | | 【共通項目】登録者 |
+| updatedAt | String | | 【共通項目】更新日 |
+| updatedBy | String | | 【共通項目】更新者 |
 
-#### Questions（問題テーブル）
+#### OR_M_QUESTION（問題テーブル）
 
 | 属性名 | 型 | キー | 説明 |
 |---|---|---|---|
@@ -390,10 +412,12 @@ Phase1 は上記 4 資格すべてに対応する。ただし、Phase1 リリー
 | explanation | String | | 解説テキスト（事前登録） |
 | difficulty | String | | `easy` / `medium` / `hard` |
 | isActive | Boolean | | 公開/非公開 |
-| createdAt | String | | |
-| updatedAt | String | | |
+| createdAt | String | | 【共通項目】登録日 |
+| createdBy | String | | 【共通項目】登録者 |
+| updatedAt | String | | 【共通項目】更新日 |
+| updatedBy | String | | 【共通項目】更新者 |
 
-#### Choices（選択肢テーブル）
+#### OR_M_CHOICE（選択肢テーブル）
 
 | 属性名 | 型 | キー | 説明 |
 |---|---|---|---|
@@ -403,18 +427,25 @@ Phase1 は上記 4 資格すべてに対応する。ただし、Phase1 リリー
 | choiceText | String | | 選択肢テキスト |
 | isCorrect | Boolean | | 正解フラグ |
 | sortOrder | Number | | 表示順（シャッフル用の基準順）|
+| createdAt | String | | 【共通項目】登録日（親の OR_M_QUESTION と同一値） |
+| createdBy | String | | 【共通項目】登録者（親の OR_M_QUESTION と同一値） |
+| updatedAt | String | | 【共通項目】更新日 |
+| updatedBy | String | | 【共通項目】更新者 |
 
-#### Users（ユーザーテーブル）
+#### OR_M_USER（ユーザーテーブル）
 
 | 属性名 | 型 | キー | 説明 |
 |---|---|---|---|
 | userId | String | PK | Cognito Sub（UUID）|
 | email | String | GSI | メールアドレス |
 | displayName | String | | 表示名 |
-| createdAt | String | | |
-| lastLoginAt | String | | |
+| lastLoginAt | String | | 最終ログイン日時 |
+| createdAt | String | | 【共通項目】登録日（＝初回登録日時） |
+| createdBy | String | | 【共通項目】登録者 |
+| updatedAt | String | | 【共通項目】更新日 |
+| updatedBy | String | | 【共通項目】更新者 |
 
-#### ExamSessions（試験セッションテーブル）
+#### OR_T_EXAM_SESSION（試験セッションテーブル）
 
 | 属性名 | 型 | キー | 説明 |
 |---|---|---|---|
@@ -426,10 +457,14 @@ Phase1 は上記 4 資格すべてに対応する。ただし、Phase1 リリー
 | timeLimitMin | Number | | 制限時間（分）。0=無制限 |
 | elapsedSec | Number | | 経過時間（秒）|
 | status | String | | `in_progress` / `completed` / `expired` |
-| startedAt | String | | |
-| finishedAt | String | | |
+| startedAt | String | | 業務上の開始日時 |
+| finishedAt | String | | 業務上の終了日時 |
+| createdAt | String | | 【共通項目】登録日 |
+| createdBy | String | | 【共通項目】登録者 |
+| updatedAt | String | | 【共通項目】更新日 |
+| updatedBy | String | | 【共通項目】更新者 |
 
-#### AnswerHistories（回答履歴テーブル）
+#### OR_T_ANSWER_HISTORY（回答履歴テーブル）
 
 | 属性名 | 型 | キー | 説明 |
 |---|---|---|---|
@@ -438,18 +473,22 @@ Phase1 は上記 4 資格すべてに対応する。ただし、Phase1 リリー
 | questionId | String | | 問題 ID |
 | selectedChoiceIds | List | | 選択した選択肢 ID リスト |
 | isCorrect | Boolean | | 正解フラグ（選択項目と正解項目の完全一致で判定） |
-| answeredAt | String | | 回答日時 |
+| answeredAt | String | | 業務上の回答日時 |
+| createdAt | String | | 【共通項目】登録日 |
+| createdBy | String | | 【共通項目】登録者 |
+| updatedAt | String | | 【共通項目】更新日 |
+| updatedBy | String | | 【共通項目】更新者 |
 
 ### 6.3 DynamoDB アクセスパターン
 
 | アクセスパターン | テーブル / GSI | キー条件 |
 |---|---|---|
-| 資格一覧取得 | QualificationMaster | Scan（件数少） |
-| 資格別問題取得（出題） | Questions / GSI(qualificationId) | qualificationId = :qid |
-| カテゴリ別問題取得 | Questions / GSI(categoryId) | categoryId = :cid |
-| 問題の選択肢取得 | Choices / GSI(questionId) | questionId = :qid |
-| ユーザーのセッション履歴 | ExamSessions / GSI(userId) | userId = :uid |
-| セッション別回答履歴 | AnswerHistories / GSI(sessionId) | sessionId = :sid |
+| 資格一覧取得 | OR_M_QUALIFICATION | Scan（件数少） |
+| 資格別問題取得（出題） | OR_M_QUESTION / GSI(qualificationId) | qualificationId = :qid |
+| カテゴリ別問題取得 | OR_M_QUESTION / GSI(categoryId) | categoryId = :cid |
+| 問題の選択肢取得 | OR_M_CHOICE / GSI(questionId) | questionId = :qid |
+| ユーザーのセッション履歴 | OR_T_EXAM_SESSION / GSI(userId) | userId = :uid |
+| セッション別回答履歴 | OR_T_ANSWER_HISTORY / GSI(sessionId) | sessionId = :sid |
 
 ---
 
@@ -603,7 +642,7 @@ Phase1 は Cognito 認証を必須とするため、全エンドポイントに 
 |---|---|---|
 | フロントエンド（Phase1） | React + Web App Manifest / Service Worker（PWA） | 単一コードベースで PC・スマホブラウザに対応。素早くリリース可能 |
 | フロントエンド（Phase2） | React Native または Flutter（Phase1のWeb資産をベースにネイティブ化） | ストア配信・プッシュ通知・オフライン対応を強化 |
-| バックエンド | Node.js 20.x on Lambda | サーバーレス。コスト効率が高い |
+| バックエンド | Node.js 22.x on Lambda | サーバーレス。コスト効率が高い |
 | IaC | AWS CDK（TypeScript） | インフラのコード管理。再現性確保 |
 | CI/CD | AWS Amplify / GitHub Actions | 自動ビルド・テスト・デプロイ |
 | テスト | Jest（Unit）/ Playwright（E2E、Phase1） | Web 標準ツールチェーン |

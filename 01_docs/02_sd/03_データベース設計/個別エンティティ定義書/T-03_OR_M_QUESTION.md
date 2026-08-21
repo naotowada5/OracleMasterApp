@@ -1,8 +1,9 @@
-# T-03 Questions（問題テーブル）
+# T-03 OR_M_QUESTION（問題テーブル）
 
 | 項目 | 内容 |
 |---|---|
-| テーブル名 | Questions |
+| テーブル名 | OR_M_QUESTION |
+| テーブル種類 | M（マスタテーブル） |
 | 概要 | 出題される問題本体（問題文・種別・解説等）を管理する |
 | Phase | Phase 1 |
 | プライマリキー | `questionId`（パーティションキーのみ） |
@@ -21,8 +22,12 @@
 | explanation | String | | 必須 | 解説テキスト（事前登録済み。Phase1/2では動的生成しない） |
 | difficulty | String | | 任意 | `easy` / `medium` / `hard` |
 | isActive | Boolean | | 必須 | 公開/非公開フラグ。falseの問題は出題・閲覧対象から除外 |
-| createdAt | String | | 必須 | ISO 8601 |
-| updatedAt | String | | 必須 | ISO 8601 |
+| createdAt | String | | 必須 | 【共通項目・登録日】ISO 8601 |
+| createdBy | String | | 必須 | 【共通項目・登録者】初期データ投入時は `SYSTEM`、[API-05](../../02_API設計/個別API設計書/API-05_問題インポート.md)/[API-06](../../02_API設計/個別API設計書/API-06_AI問題生成.md) 経由（Phase3）は実行ユーザーの Cognito `sub` |
+| updatedAt | String | | 必須 | 【共通項目・更新日】ISO 8601 |
+| updatedBy | String | | 必須 | 【共通項目・更新者】 |
+
+共通項目（`createdAt` / `createdBy` / `updatedAt` / `updatedBy`）の設定規則は [テーブル一覧](../テーブル一覧.md) §共通項目を参照。
 
 ## 2. GSI定義
 
@@ -45,7 +50,9 @@
   "difficulty": "medium",
   "isActive": true,
   "createdAt": "2026-06-01T00:00:00.000Z",
-  "updatedAt": "2026-06-01T00:00:00.000Z"
+  "createdBy": "SYSTEM",
+  "updatedAt": "2026-06-01T00:00:00.000Z",
+  "updatedBy": "SYSTEM"
 }
 ```
 
@@ -58,5 +65,6 @@
 
 ## 5. 備考
 
-- `correctCount` は [API-08 セッション更新](../../02_API設計/個別API設計書/API-08_セッション更新.md) の採点処理では直接使わず、`Choices.isCorrect=true` の集合との完全一致で判定する（`correctCount` はUI上の「◯つ選んでください」表示用の補助情報）。
+- `correctCount` は [API-08 セッション更新](../../02_API設計/個別API設計書/API-08_セッション更新.md) の採点処理では直接使わず、`OR_M_CHOICE.isCorrect=true` の集合との完全一致で判定する（`correctCount` はUI上の「◯つ選んでください」表示用の補助情報）。
 - 目標データ件数は各資格500問以上（要件定義書 §8.1）。Phase1リリース時点で不足する場合は資格ごとに順次拡充する。
+- 共通項目は監査用の内部項目であり、[API-03](../../02_API設計/個別API設計書/API-03_問題一覧取得.md)/[API-04](../../02_API設計/個別API設計書/API-04_ランダム出題リスト生成.md) のレスポンスには含めない。

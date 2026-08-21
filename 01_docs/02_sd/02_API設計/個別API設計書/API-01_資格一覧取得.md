@@ -6,7 +6,7 @@
 | Phase | Phase 1 |
 | 認証 | 必要（Cognito） |
 | 利用画面 | S-05, S-08, S-04（Phase3） |
-| 関連テーブル | QualificationMaster |
+| 関連テーブル | OR_M_QUALIFICATION |
 
 ## 1. 概要
 
@@ -49,7 +49,7 @@
 ## 4. 処理フロー
 
 1. API Gateway が Cognito トークンを検証。
-2. Lambda が `QualificationMaster` テーブルを Scan。
+2. Lambda が `OR_M_QUALIFICATION` テーブルを Scan。
 3. `isActive=true` のレコードのみ抽出し、`name` の五十音/コード順など既定の並び順でソートして返却する。
 
 ## 5. エラー

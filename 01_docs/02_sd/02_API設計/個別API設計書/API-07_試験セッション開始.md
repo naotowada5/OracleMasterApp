@@ -6,7 +6,7 @@
 | Phase | Phase 1 |
 | 認証 | 必要（Cognito） |
 | 利用画面 | S-05（出題設定） |
-| 関連テーブル | ExamSessions |
+| 関連テーブル | OR_T_EXAM_SESSION |
 
 ## 1. 概要
 
@@ -57,8 +57,8 @@
 
 1. `qualificationId` / `totalQuestions` の必須チェック。
 2. Cognito トークンの `sub` を `userId` として使用する（クライアント指定は無視する。要件定義書 §9.1「ユーザーは自分のデータのみアクセス可能」）。
-3. `ExamSessions` に新規レコードを作成（`sessionId` はUUID採番、`status=in_progress`、`correctCount=0`、`elapsedSec=0`、`startedAt`=現在時刻）。
-4. 作成結果を返却する。
+3. `OR_T_EXAM_SESSION` に新規レコードを作成（`sessionId` はUUID採番、`status=in_progress`、`correctCount=0`、`elapsedSec=0`、`startedAt`=現在時刻）。共通項目 `createdAt`/`updatedAt`=現在時刻、`createdBy`/`updatedBy`=トークンの `sub` を設定する（[テーブル一覧](../../03_データベース設計/テーブル一覧.md) §共通項目）。
+4. 作成結果を返却する（共通項目はレスポンスに含めない）。
 
 ## 5. エラー
 

@@ -22,7 +22,7 @@ Authorization: Bearer {IDトークン}
 ```
 
 - トークン検証は API Gateway のオーソライザーで行い、Lambda 到達前に 401 を返す。
-- Lambda 内では、Cognito クレームの `sub`（ユーザーID）を用いて、リクエスト対象データがそのユーザー自身のものであるかを検証する（例: `ExamSessions.userId` が呼び出しユーザーの `sub` と一致するか。要件定義書 §9.1）。
+- Lambda 内では、Cognito クレームの `sub`（ユーザーID）を用いて、リクエスト対象データがそのユーザー自身のものであるかを検証する（例: `OR_T_EXAM_SESSION.userId` が呼び出しユーザーの `sub` と一致するか。要件定義書 §9.1）。
 - 詳細は [認証・認可設計](../04_共通設計/認証・認可設計.md) を参照。
 
 ## 3. 共通リクエストヘッダ
@@ -112,6 +112,14 @@ HTTP ステータス 200 系。レスポンスボディは各APIごとの JSON �
 
 - 日時: ISO 8601（`YYYY-MM-DDTHH:mm:ss.sssZ`, UTC）
 - ID: UUID v4文字列（`qualificationId` のみ要件定義書に基づき資格コード文字列 例:`1Z0-085-JPN`）
+
+### 8.1 共通項目（監査項目）の取り扱い
+
+全DynamoDBテーブルは共通項目 `createdAt`（登録日）/ `createdBy`（登録者）/ `updatedAt`（更新日）/ `updatedBy`（更新者）を保持する（[テーブル一覧](../03_データベース設計/テーブル一覧.md) §共通項目）。APIとしては以下を共通ルールとする。
+
+- 共通項目は監査用の内部項目とし、**原則としてAPIレスポンスには含めない**（例外: [API-10](個別API設計書/API-10_ユーザー情報取得.md) の `createdAt`）。
+- `createdBy` / `updatedBy` はクライアントからのリクエストで指定させず、必ずCognitoトークンの `sub` をLambda側で設定する（[認証・認可設計](../04_共通設計/認証・認可設計.md) §3）。
+- 更新系APIは `updatedAt` / `updatedBy` を必ず更新し、`createdAt` / `createdBy` は上書きしない。
 
 ## 9. CORS
 

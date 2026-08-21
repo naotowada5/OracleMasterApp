@@ -1,0 +1,343 @@
+{
+  "info": {
+    "name": "Oracle Master 資格問題アプリ API",
+    "description": "Phase1 のAPI動作確認用コレクション。\n\n使い方は docs/postman/README.md を参照。\n\n1. 環境 `OracleMasterApp dev` を選択し、`username` / `password` を設定する\n2. 「00 ログイン」を実行すると `idToken` が環境変数に自動保存される\n3. 以降のリクエストはコレクション共通のBearer認証でそのトークンを使う",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "auth": {
+    "type": "bearer",
+    "bearer": [{ "key": "token", "value": "{{idToken}}", "type": "string" }]
+  },
+  "item": [
+    {
+      "name": "00 ログイン（IDトークン取得）",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "const body = pm.response.json();",
+              "",
+              "pm.test('ステータス200', () => pm.response.to.have.status(200));",
+              "",
+              "if (body.AuthenticationResult && body.AuthenticationResult.IdToken) {",
+              "  pm.environment.set('idToken', body.AuthenticationResult.IdToken);",
+              "  console.log('idToken を環境変数に保存しました');",
+              "  pm.test('IDトークンを取得できた', () => pm.expect(body.AuthenticationResult.IdToken).to.be.a('string'));",
+              "} else {",
+              "  pm.test('IDトークンを取得できた', () => pm.expect.fail('AuthenticationResult.IdToken がレスポンスに含まれていません'));",
+              "}"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "auth": { "type": "noauth" },
+        "method": "POST",
+        "header": [
+          { "key": "Content-Type", "value": "application/x-amz-json-1.1" },
+          { "key": "X-Amz-Target", "value": "AWSCognitoIdentityProviderService.InitiateAuth" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"AuthFlow\": \"USER_PASSWORD_AUTH\",\n  \"ClientId\": \"{{cliClientId}}\",\n  \"AuthParameters\": {\n    \"USERNAME\": \"{{username}}\",\n    \"PASSWORD\": \"{{password}}\"\n  }\n}"
+        },
+        "url": {
+          "raw": "https://cognito-idp.{{awsRegion}}.amazonaws.com/",
+          "protocol": "https",
+          "host": ["cognito-idp", "{{awsRegion}}", "amazonaws", "com"],
+          "path": [""]
+        },
+        "description": "Cognito の InitiateAuth を直接呼び出してIDトークンを取得する。\n\n疎通確認用クライアント（`oracle-master-app-cli-test-dev`）はパスワード直接認証を許可しているためこの方法が使える。アプリ本体のSPAクライアントはSRP認証のみのため、この経路では認証できない。\n\n成功するとテストスクリプトが `idToken` を環境変数に保存する。"
+      }
+    },
+    {
+      "name": "実装済み（T2-2 参照系）",
+      "item": [
+        {
+          "name": "API-01 資格一覧取得",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('ステータス200', () => pm.response.to.have.status(200));",
+                  "const body = pm.response.json();",
+                  "pm.test('items 配列が返る', () => pm.expect(body.items).to.be.an('array'));",
+                  "pm.test('共通項目がレスポンスに含まれない', () => {",
+                  "  body.items.forEach((item) => {",
+                  "    ['createdBy', 'updatedAt', 'updatedBy'].forEach((key) => pm.expect(item).to.not.have.property(key));",
+                  "  });",
+                  "});",
+                  "pm.test('無効な資格が含まれない', () => {",
+                  "  body.items.forEach((item) => pm.expect(item.isActive).to.eql(true));",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/qualifications",
+              "host": ["{{baseUrl}}"],
+              "path": ["qualifications"]
+            },
+            "description": "有効な資格の一覧を取得する（API-01）。`isActive=false` の資格はLambda側で除外される。"
+          }
+        },
+        {
+          "name": "API-02 カテゴリ一覧取得",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('ステータス200', () => pm.response.to.have.status(200));",
+                  "const body = pm.response.json();",
+                  "pm.test('sortOrder 昇順で並んでいる', () => {",
+                  "  const orders = body.items.map((item) => item.sortOrder);",
+                  "  pm.expect(orders).to.eql([...orders].sort((a, b) => a - b));",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/categories?qualificationId={{qualificationId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["categories"],
+              "query": [{ "key": "qualificationId", "value": "{{qualificationId}}" }]
+            },
+            "description": "指定した資格の大問カテゴリ一覧を取得する（API-02）。`sortOrder` 昇順で返る。"
+          }
+        },
+        {
+          "name": "API-10 ユーザー情報取得",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('ステータス200', () => pm.response.to.have.status(200));",
+                  "const body = pm.response.json();",
+                  "pm.test('自分自身の情報が返る', () => pm.expect(body.userId).to.be.a('string'));",
+                  "pm.test('createdAt は返るが他の共通項目は返らない', () => {",
+                  "  pm.expect(body).to.have.property('createdAt');",
+                  "  ['createdBy', 'updatedAt', 'updatedBy'].forEach((key) => pm.expect(body).to.not.have.property(key));",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/users/me",
+              "host": ["{{baseUrl}}"],
+              "path": ["users", "me"]
+            },
+            "description": "ログイン中ユーザー自身の情報を取得する（API-10）。\n\n初回アクセス時は Cognito のクレームから `OR_M_USER` レコードを自動作成する。呼び出しのたびに `lastLoginAt` が更新される。"
+          }
+        }
+      ]
+    },
+    {
+      "name": "異常系の確認",
+      "item": [
+        {
+          "name": "認証なし → 401",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('ステータス401', () => pm.response.to.have.status(401));",
+                  "pm.test('Unauthorized が返る', () => pm.expect(pm.response.json().message).to.eql('Unauthorized'));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/qualifications",
+              "host": ["{{baseUrl}}"],
+              "path": ["qualifications"]
+            },
+            "description": "API Gateway の Cognito オーソライザーがLambda到達前に弾くことを確認する。"
+          }
+        },
+        {
+          "name": "API-02 qualificationId 未指定 → 400",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('ステータス400', () => pm.response.to.have.status(400));",
+                  "const error = pm.response.json().error;",
+                  "pm.test('VALIDATION_ERROR が返る', () => pm.expect(error.code).to.eql('VALIDATION_ERROR'));",
+                  "pm.test('フィールド単位の詳細が返る', () => {",
+                  "  pm.expect(error.details).to.eql([{ field: 'qualificationId', reason: 'required' }]);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/categories",
+              "host": ["{{baseUrl}}"],
+              "path": ["categories"]
+            },
+            "description": "必須クエリパラメータが無い場合のバリデーションエラー（API共通設計 §4.2）。"
+          }
+        },
+        {
+          "name": "API-02 存在しない資格 → 404",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('ステータス404', () => pm.response.to.have.status(404));",
+                  "pm.test('NOT_FOUND が返る', () => pm.expect(pm.response.json().error.code).to.eql('NOT_FOUND'));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/categories?qualificationId=1Z0-000-NOTEXIST",
+              "host": ["{{baseUrl}}"],
+              "path": ["categories"],
+              "query": [{ "key": "qualificationId", "value": "1Z0-000-NOTEXIST" }]
+            },
+            "description": "資格自体が存在しない場合は404。カテゴリが0件の場合は空配列で200を返す（404にしない）。"
+          }
+        },
+        {
+          "name": "Phase3ルート未登録の確認 → 403",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('ステータス403', () => pm.response.to.have.status(403));",
+                  "pm.test('ルート自体が存在しない', () => {",
+                  "  pm.expect(pm.response.json().message).to.eql('Missing Authentication Token');",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/questions/import",
+              "host": ["{{baseUrl}}"],
+              "path": ["questions", "import"]
+            },
+            "description": "Phase3対象のためルート登録していないことを確認する。200が返る場合はフェーズ先行実装。"
+          }
+        }
+      ]
+    },
+    {
+      "name": "未実装（ダミーLambdaが応答）",
+      "description": "T2-3・T2-4 で実装予定。現時点ではダミーLambdaが固定文字列を返す。",
+      "item": [
+        {
+          "name": "API-03 問題一覧取得",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/questions?qualificationId={{qualificationId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["questions"],
+              "query": [{ "key": "qualificationId", "value": "{{qualificationId}}" }]
+            }
+          }
+        },
+        {
+          "name": "API-04 ランダム出題リスト生成",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"qualificationId\": \"{{qualificationId}}\",\n  \"questionCount\": 20\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/questions/random",
+              "host": ["{{baseUrl}}"],
+              "path": ["questions", "random"]
+            }
+          }
+        },
+        {
+          "name": "API-07 試験セッション開始",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"qualificationId\": \"{{qualificationId}}\",\n  \"totalQuestions\": 20,\n  \"timeLimitMin\": 30\n}"
+            },
+            "url": { "raw": "{{baseUrl}}/sessions", "host": ["{{baseUrl}}"], "path": ["sessions"] }
+          }
+        },
+        {
+          "name": "API-08 セッション更新",
+          "request": {
+            "method": "PUT",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"action\": \"answer\",\n  \"questionId\": \"q-uuid-1\",\n  \"selectedChoiceIds\": [\"ch-1\"],\n  \"elapsedSec\": 125\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/sessions/{{sessionId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["sessions", "{{sessionId}}"]
+            }
+          }
+        },
+        {
+          "name": "API-09 セッション取得",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/sessions/{{sessionId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["sessions", "{{sessionId}}"]
+            }
+          }
+        }
+      ]
+    }
+  ]
+}

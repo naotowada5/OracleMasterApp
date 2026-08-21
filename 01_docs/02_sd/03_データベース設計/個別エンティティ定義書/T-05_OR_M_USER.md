@@ -1,8 +1,9 @@
-# T-05 Users（ユーザーテーブル）
+# T-05 OR_M_USER（ユーザーテーブル）
 
 | 項目 | 内容 |
 |---|---|
-| テーブル名 | Users |
+| テーブル名 | OR_M_USER |
+| テーブル種類 | M（マスタテーブル） |
 | 概要 | アプリ内で保持する最小限のユーザー情報。認証情報自体は Amazon Cognito が管理する |
 | Phase | Phase 1 |
 | プライマリキー | `userId`（パーティションキーのみ） |
@@ -15,8 +16,13 @@
 | userId | String | PK | 必須 | Amazon Cognito の `sub`（UUID形式）。Cognitoと1:1で対応 |
 | email | String | GSI PK | 必須 | メールアドレス（Cognitoのユーザー名と同一値を保持） |
 | displayName | String | | 必須 | 表示名（S-03等で表示） |
-| createdAt | String | | 必須 | 初回登録日時（ISO 8601） |
 | lastLoginAt | String | | 必須 | 最終ログイン日時（[API-10](../../02_API設計/個別API設計書/API-10_ユーザー情報取得.md) 呼び出しの都度更新） |
+| createdAt | String | | 必須 | 【共通項目・登録日】初回登録日時（ISO 8601） |
+| createdBy | String | | 必須 | 【共通項目・登録者】自動プロビジョニングのため自分自身の `userId`（Cognito `sub`）を設定。Post Confirmation Lambda トリガーで作成する場合は `SYSTEM` |
+| updatedAt | String | | 必須 | 【共通項目・更新日】ISO 8601。`lastLoginAt` 更新時も併せて更新する |
+| updatedBy | String | | 必須 | 【共通項目・更新者】自分自身の `userId` |
+
+共通項目（`createdAt` / `createdBy` / `updatedAt` / `updatedBy`）の設定規則は [テーブル一覧](../テーブル一覧.md) §共通項目を参照。
 
 ## 2. GSI定義
 
@@ -31,8 +37,11 @@
   "userId": "5f1e2d3c-cognito-sub",
   "email": "user@example.com",
   "displayName": "テストユーザー",
+  "lastLoginAt": "2026-07-18T09:59:00.000Z",
   "createdAt": "2026-06-01T00:00:00.000Z",
-  "lastLoginAt": "2026-07-18T09:59:00.000Z"
+  "createdBy": "5f1e2d3c-cognito-sub",
+  "updatedAt": "2026-07-18T09:59:00.000Z",
+  "updatedBy": "5f1e2d3c-cognito-sub"
 }
 ```
 
@@ -48,3 +57,4 @@
 ## 6. 備考
 
 - `userId` は Cognito Post Confirmation Lambda トリガー、または初回 `GET /users/me` 呼び出し時にレコード作成される（[API-10](../../02_API設計/個別API設計書/API-10_ユーザー情報取得.md) 処理フロー参照）。
+- 共通項目のうち `createdAt` のみ [API-10](../../02_API設計/個別API設計書/API-10_ユーザー情報取得.md) のレスポンスに含める（既存の返却仕様を維持）。`createdBy`/`updatedAt`/`updatedBy` はレスポンスに含めない。
