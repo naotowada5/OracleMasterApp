@@ -48,6 +48,7 @@ const apiStack = new ApiStack(app, `${stackPrefix}-Api`, {
   env,
   config,
   userPool: authStack.userPool,
+  tables: dataStack.tables,
   description: `Oracle Master 資格問題アプリ API (${config.envName})`,
 });
 

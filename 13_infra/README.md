@@ -12,8 +12,16 @@ Oracle Master 資格問題アプリの AWS インフラ定義。基本設計書 
 |---|---|---|
 | `-Auth` | Cognito User Pool / User Pool Client / Identity Pool | T1-2 |
 | `-Data` | DynamoDB 7テーブル、S3バケット | T1-3, T1-4 |
-| `-Api` | API Gateway (REST) + Cognito Authorizer + ダミーLambda | T1-5 |
+| `-Api` | API Gateway (REST) + Cognito Authorizer + Phase1対象8APIのLambda | T1-5, T2-2〜T2-4 |
 | `-Monitoring` | CloudWatch ダッシュボード / アラーム、SNSトピック | T1-6 |
+
+## バックエンドとの関係
+
+`-Api` スタックの Lambda は `12_backend` のビルド成果物（`12_backend/dist/<ハンドラ名>/`）を参照する。本ディレクトリの npm スクリプト（`synth:dev` / `diff:dev` / `deploy:dev` 等）は実行前に `12_backend` のビルドを自動で行う。
+
+`cdk` コマンドを直接叩く場合は、先に `12_backend` で `npm run build:lambda` を実行すること（未ビルドの場合は synth 時にその旨のエラーになる）。
+
+Phase1対象の8APIはすべて個別のLambda関数として登録済み（ダミーLambdaは廃止した）。APIを追加する場合は `lib/stacks/api-stack.ts` の `createApiFunction` に定義を足す。
 
 ## 前提
 
