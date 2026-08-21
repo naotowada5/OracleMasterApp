@@ -6,7 +6,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 Requirements (`01_docs/01_ra/requirements3.md`, v1.3) and the Phase 1 basic design (`01_docs/02_sd/`) are complete and are the source of truth for everything below. Work is tracked task-by-task in `01_docs/03_dev/開発タスク一覧.md` — check it before starting anything, and tick boxes as tasks land.
 
-Implemented so far: **`13_infra`** (AWS CDK, Step 1 complete — deployed to dev in ap-northeast-1) and **`12_backend`** (common layer only, T2-1; API handlers are Step 2 work). `11_frontend` and `14_script` are still empty placeholders.
+Implemented so far: **`13_infra`** (AWS CDK, Step 1 complete), **`12_backend`** (Step 2 complete — all 8 Phase 1 APIs deployed to dev in ap-northeast-1), and **`14_script`** (Step 3 — question import script with 34 sample questions). `11_frontend` is still an empty placeholder.
 
 Root commands (repo-wide lint/format):
 
@@ -30,6 +30,13 @@ Backend commands (run inside `12_backend`; see `12_backend/README.md`):
 ```bash
 npm test
 npm run typecheck
+```
+
+Data seeding (run inside `14_script`; see `14_script/README.md`):
+
+```bash
+npm run validate
+npm run import:dev
 ```
 
 ## Project overview

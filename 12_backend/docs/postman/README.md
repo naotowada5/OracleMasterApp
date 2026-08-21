@@ -25,7 +25,7 @@ cd 13_infra && npm run deploy:dev
 
 `OR_M_QUALIFICATION` が空のままだと API-01 は空配列、API-02 は404を返す。確認用データの投入は次を実行する。
 
-Step 3（T3-1）の投入スクリプトが整備されるまでは、[dev環境データ投入](#dev環境データ投入) の手順で暫定投入する。
+投入手順は [dev環境データ投入](#dev環境データ投入) を参照。
 
 ### 3. テストユーザーを用意する
 
@@ -78,27 +78,8 @@ aws cloudformation describe-stacks --stack-name OracleMasterApp-dev-Auth --query
 
 ## dev環境データ投入
 
-Step 3（T3-1）で `14_script` に投入スクリプトを整備するまでの暫定手段。要件定義書 §1.4 の4資格と、動作確認用のカテゴリ5件を登録する。共通項目の登録者・更新者は `SYSTEM` とする（[テーブル一覧](../../../01_docs/02_sd/03_データベース設計/テーブル一覧.md) §共通項目）。
-
-`12_backend` 直下で実行する:
+投入は `14_script` で行う（T3-1）。詳細は [14_script/README.md](../../../14_script/README.md) を参照。
 
 ```bash
-node docs/postman/seed-dev.mjs
-```
-
-投入内容の確認（AWS CLI）:
-
-```bash
-aws dynamodb scan --table-name dev-OR_M_QUALIFICATION --query "Items[].[qualificationId.S,name.S,level.S]" --output table
-```
-
-> **Windows での注意**
-> AWS CLI の出力に含まれる日本語はコンソールのコードページの都合で文字化けすることがある（保存されているデータ自体は UTF-8 で正しい）。また、日本語を含む JSON ファイルは `--request-items file://...` で読み込めずエラーになるため、投入には上記スクリプトを使うこと。
-
-本スクリプトはIDをキー文字列から決定的に生成するため、**何度実行しても重複レコードが増えない**（上書きになる）。
-
-過去の非冪等な投入で重複したレコードを掃除する場合は、次でマスタを全削除してから投入し直す（dev環境専用）。
-
-```bash
-node docs/postman/purge-dev.mjs
+cd 14_script && npm run import:dev
 ```

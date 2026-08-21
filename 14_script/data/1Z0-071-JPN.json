@@ -1,0 +1,290 @@
+{
+  "qualificationId": "1Z0-071-JPN",
+  "qualificationName": "Oracle Master Silver SQL",
+  "level": "silver",
+  "questions": [
+    {
+      "categoryName": "SELECT文の基礎",
+      "questionText": "列別名の指定方法について、正常に実行されるSQL文を2つ選択してください。",
+      "questionType": "multiple",
+      "difficulty": "medium",
+      "explanation": "列別名に空白やハイフンなどの特殊文字を含める場合、または大文字小文字を区別したい場合は二重引用符で囲む必要があります。単一引用符は文字列リテラル用であり別名には使えません。ハイフンを含む EMP-NO を引用符なしで指定するとエラーになります。また DATE は予約語のため、引用符なしでは別名に使用できません。",
+      "choices": [
+        {
+          "label": "A",
+          "choiceText": "SELECT empno \"EMP-NO\", hiredate \"DATE\", sal*12 \"ANNSAL\" FROM emp;",
+          "isCorrect": true
+        },
+        {
+          "label": "B",
+          "choiceText": "SELECT empno 'EMP-NO', hiredate 'DATE', sal*12 'ANNSAL' FROM emp;",
+          "isCorrect": false
+        },
+        {
+          "label": "C",
+          "choiceText": "SELECT empno EMP-NO, hiredate \"DATE\", sal*12 ANNSAL FROM emp;",
+          "isCorrect": false
+        },
+        {
+          "label": "D",
+          "choiceText": "SELECT empno AS EMP-NO, hiredate \"DATE\", sal*12 ANNSAL FROM emp;",
+          "isCorrect": false
+        },
+        {
+          "label": "E",
+          "choiceText": "SELECT empno AS \"EMP-NO\", hiredate DATE, sal*12 \"ANNSAL\" FROM emp;",
+          "isCorrect": false
+        },
+        {
+          "label": "F",
+          "choiceText": "SELECT empno \"EMP-NO\", hiredate \"DATE\", sal*12 AS ANNSAL FROM emp;",
+          "isCorrect": true
+        }
+      ]
+    },
+    {
+      "categoryName": "SELECT文の基礎",
+      "questionText": "DESCRIBEコマンドに関して正しい説明を2つ選択してください。",
+      "questionType": "multiple",
+      "difficulty": "medium",
+      "explanation": "DESCRIBEコマンドはSQL*PlusとSQL Developerの両方から使用でき、既存の表やビューの構造（列名・NULL可否・データ型）を確認するために使用します。すべての制約情報を確認できるわけではなく、データの更新や削除もできません。",
+      "choices": [
+        {
+          "label": "A",
+          "choiceText": "表の各列に定義されているすべての制約情報を確認することができる",
+          "isCorrect": false
+        },
+        {
+          "label": "B",
+          "choiceText": "SQL*Plus と SQL Developer から使用することができる",
+          "isCorrect": true
+        },
+        {
+          "label": "C",
+          "choiceText": "データの更新や削除などの操作が可能である",
+          "isCorrect": false
+        },
+        {
+          "label": "D",
+          "choiceText": "既存の表やビューの構造を確認するために使用できる",
+          "isCorrect": true
+        },
+        {
+          "label": "E",
+          "choiceText": "PRIMARY KEY制約とNOT NULL制約のみ確認することが可能である",
+          "isCorrect": false
+        }
+      ]
+    },
+    {
+      "categoryName": "SELECT文の基礎",
+      "questionText": "DUAL表に対して正しい記述を1つ選択してください。",
+      "questionType": "single",
+      "difficulty": "easy",
+      "explanation": "DUAL表はOracleがデータベース作成時に自動的に用意するダミー表で、VARCHAR2型のDUMMY列を1つ持ち、行も1行だけです。すべてのユーザーがアクセスでき、標準SQL関数やパッケージを動作させる目的で使用されます。",
+      "choices": [
+        { "label": "A", "choiceText": "DUAL表は複数の行と列で構成されている", "isCorrect": false },
+        {
+          "label": "B",
+          "choiceText": "NUMBER型の単一の行と列で構成されている",
+          "isCorrect": false
+        },
+        {
+          "label": "C",
+          "choiceText": "DBA権限を持った特定のユーザーのみアクセスが許可されている",
+          "isCorrect": false
+        },
+        {
+          "label": "D",
+          "choiceText": "DUAL表を使用して標準SQL関数やパッケージなどを動作させることができる",
+          "isCorrect": true
+        },
+        {
+          "label": "E",
+          "choiceText": "データベースインストール後、別途構築が必要なオブジェクトである",
+          "isCorrect": false
+        }
+      ]
+    },
+    {
+      "categoryName": "SELECT文の基礎",
+      "questionText": "EMP表（EMPNO, ENAME, JOB, DEPTNO）に対し、職種(JOB)ごとに固有の部門番号(DEPTNO)を表示し、部門番号でソートするSQL文を1つ選択してください。",
+      "questionType": "single",
+      "difficulty": "medium",
+      "explanation": "DISTINCTはSELECT句の先頭に1回だけ記述し、指定した列の組み合わせに対して重複を排除します。列ごとに複数回指定することはできません。ORDER BYには列位置（2は2番目の列であるdeptno）を指定できます。",
+      "choices": [
+        {
+          "label": "A",
+          "choiceText": "SELECT DISTINCT job, DISTINCT deptno FROM emp ORDER BY deptno;",
+          "isCorrect": false
+        },
+        {
+          "label": "B",
+          "choiceText": "SELECT job, DISTINCT deptno FROM emp ORDER BY deptno;",
+          "isCorrect": false
+        },
+        {
+          "label": "C",
+          "choiceText": "SELECT DISTINCT job, deptno FROM emp ORDER BY 2;",
+          "isCorrect": true
+        },
+        {
+          "label": "D",
+          "choiceText": "SELECT DISTINCT 'job, deptno' FROM emp ORDER BY 2;",
+          "isCorrect": false
+        }
+      ]
+    },
+    {
+      "categoryName": "WHERE句と演算子",
+      "questionText": "EMP表のMGR_ID列には上司のIDが格納されています。上司がいない人の名前(LAST_NAME)と、給与(SALARY)を2倍した値を表示するSQL文を1つ選択してください。",
+      "questionType": "single",
+      "difficulty": "medium",
+      "explanation": "NULLとの比較には IS NULL を使用します。= NULL や == NULL では正しく判定できません（== はOracleでは構文エラー）。また列別名に単一引用符は使用できないため、二重引用符またはAS句を用います。",
+      "choices": [
+        {
+          "label": "A",
+          "choiceText": "SELECT last_name, salary*2 'SAL' FROM emp WHERE mgr_id IS NULL;",
+          "isCorrect": false
+        },
+        {
+          "label": "B",
+          "choiceText": "SELECT last_name, salary*2 AS SAL FROM emp WHERE mgr_id = NULL;",
+          "isCorrect": false
+        },
+        {
+          "label": "C",
+          "choiceText": "SELECT last_name, salary*2 \"SAL\" FROM emp WHERE mgr_id == NULL;",
+          "isCorrect": false
+        },
+        {
+          "label": "D",
+          "choiceText": "SELECT last_name, salary*2 \"SAL\" FROM emp WHERE mgr_id IS NULL;",
+          "isCorrect": true
+        }
+      ]
+    },
+    {
+      "categoryName": "WHERE句と演算子",
+      "questionText": "演算子の優先順位の規則について正しく述べているものを3つ選択してください。",
+      "questionType": "multiple",
+      "difficulty": "hard",
+      "explanation": "算術演算子は比較演算子より先に評価され、乗除算は加減算より先に評価されます。論理演算子ではNOT、AND、ORの順に優先されます。優先順位は括弧を使って明示的に変更できます。",
+      "choices": [
+        {
+          "label": "A",
+          "choiceText": "算術演算子は比較演算子よりも先に評価される",
+          "isCorrect": true
+        },
+        {
+          "label": "B",
+          "choiceText": "AND演算子はOR演算子よりも先に評価される",
+          "isCorrect": true
+        },
+        {
+          "label": "C",
+          "choiceText": "括弧を使用することで優先順位を変更することができる",
+          "isCorrect": true
+        },
+        {
+          "label": "D",
+          "choiceText": "OR演算子はAND演算子よりも先に評価される",
+          "isCorrect": false
+        },
+        { "label": "E", "choiceText": "加減算は乗除算よりも先に評価される", "isCorrect": false }
+      ]
+    },
+    {
+      "categoryName": "WHERE句と演算子",
+      "questionText": "NULLを含む列に対する演算結果として正しいものを1つ選択してください。",
+      "questionType": "single",
+      "difficulty": "medium",
+      "explanation": "NULLを含む算術演算の結果は必ずNULLになります。NULLを別の値に置き換えて計算したい場合はNVL関数などを使用します。",
+      "choices": [
+        { "label": "A", "choiceText": "NULLを含む算術演算の結果はNULLになる", "isCorrect": true },
+        { "label": "B", "choiceText": "NULLを含む算術演算の結果は0になる", "isCorrect": false },
+        {
+          "label": "C",
+          "choiceText": "NULLを含む算術演算はエラーとなり実行できない",
+          "isCorrect": false
+        },
+        {
+          "label": "D",
+          "choiceText": "NULLは自動的に空文字として扱われ、演算対象から除外される",
+          "isCorrect": false
+        }
+      ]
+    },
+    {
+      "categoryName": "ソートと並び替え",
+      "questionText": "ORDER BY句に関する記述として正しいものを2つ選択してください。",
+      "questionType": "multiple",
+      "difficulty": "medium",
+      "explanation": "ORDER BY句はSELECT文の最後に記述します。並び順を省略した場合は昇順（ASC）となり、列名だけでなくSELECT句での列位置や列別名を指定することもできます。",
+      "choices": [
+        {
+          "label": "A",
+          "choiceText": "並び順を省略した場合は昇順（ASC）で並び替えられる",
+          "isCorrect": true
+        },
+        {
+          "label": "B",
+          "choiceText": "SELECT句で指定した列別名をORDER BY句で使用できる",
+          "isCorrect": true
+        },
+        {
+          "label": "C",
+          "choiceText": "並び順を省略した場合は降順（DESC）で並び替えられる",
+          "isCorrect": false
+        },
+        {
+          "label": "D",
+          "choiceText": "ORDER BY句はSELECT文の先頭に記述しなければならない",
+          "isCorrect": false
+        }
+      ]
+    },
+    {
+      "categoryName": "結合とサブクエリ",
+      "questionText": "内部結合を表すキーワードとして正しいものを1つ選択してください。",
+      "questionType": "single",
+      "difficulty": "easy",
+      "explanation": "INNER JOINは、結合条件に一致する行のみを両方の表から取得する内部結合です。OUTER JOINは一致しない行も含めて取得し、CROSS JOINは両表のすべての組み合わせ（直積）を返します。",
+      "choices": [
+        { "label": "A", "choiceText": "INNER JOIN", "isCorrect": true },
+        { "label": "B", "choiceText": "OUTER JOIN", "isCorrect": false },
+        { "label": "C", "choiceText": "CROSS JOIN", "isCorrect": false },
+        { "label": "D", "choiceText": "SELF JOIN", "isCorrect": false }
+      ]
+    },
+    {
+      "categoryName": "結合とサブクエリ",
+      "questionText": "副問合せ（サブクエリ）に関する記述として正しいものを2つ選択してください。",
+      "questionType": "multiple",
+      "difficulty": "hard",
+      "explanation": "単一行副問合せの結果に対しては単一行演算子（=、>、< など）を使用します。複数行を返す副問合せに対してはIN、ANY、ALLなどの複数行演算子を使用する必要があり、単一行演算子を使うとエラーになります。",
+      "choices": [
+        {
+          "label": "A",
+          "choiceText": "単一行副問合せには = や > などの単一行演算子を使用する",
+          "isCorrect": true
+        },
+        {
+          "label": "B",
+          "choiceText": "複数行を返す副問合せにはIN、ANY、ALLなどの複数行演算子を使用する",
+          "isCorrect": true
+        },
+        {
+          "label": "C",
+          "choiceText": "複数行を返す副問合せに = を使用しても正常に実行される",
+          "isCorrect": false
+        },
+        {
+          "label": "D",
+          "choiceText": "副問合せはWHERE句以外では使用できない",
+          "isCorrect": false
+        }
+      ]
+    }
+  ]
+}

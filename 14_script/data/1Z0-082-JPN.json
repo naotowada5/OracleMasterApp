@@ -1,0 +1,539 @@
+{
+  "qualificationId": "1Z0-082-JPN",
+  "qualificationName": "Oracle Master Silver DBA",
+  "level": "silver",
+  "questions": [
+    {
+      "categoryName": "Oracleインスタンスの構造",
+      "questionText": "Oracleデータベース・サーバーの構成に関する記述として正しいものを2つ選択してください。",
+      "questionType": "multiple",
+      "difficulty": "easy",
+      "explanation": "Oracleデータベース・サーバーは、メモリ上の構造である「インスタンス」と、ハードディスク上の各種ファイルの集まりである「データベース」の2つに大きく分かれます。利用者がデータベースに接続するとき、実際に接続しているのはインスタンスです。",
+      "choices": [
+        { "label": "A", "choiceText": "インスタンスはメモリ上の構造である", "isCorrect": true },
+        {
+          "label": "B",
+          "choiceText": "データベースはハードディスク上の各種ファイルの集まりである",
+          "isCorrect": true
+        },
+        {
+          "label": "C",
+          "choiceText": "インスタンスはハードディスク上のファイルとして永続化される",
+          "isCorrect": false
+        },
+        {
+          "label": "D",
+          "choiceText": "データベースに接続するとは、データファイルに直接接続することである",
+          "isCorrect": false
+        }
+      ]
+    },
+    {
+      "categoryName": "Oracleインスタンスの構造",
+      "questionText": "一般的なOracleデータベース・サーバー（マルチテナント構成ではない）における、インスタンスとデータベースの関係として存在し得るものを3つ選択してください。",
+      "questionType": "multiple",
+      "difficulty": "medium",
+      "explanation": "1つのインスタンスが複数のデータベースに関連付けられることはありません。一方、複数のインスタンスが1つのデータベースを管理する構成（RAC）、1インスタンス対1データベースのシングル構成、1台のサーバー上に複数のインスタンスがそれぞれのデータベースを持つ構成は、いずれも成立します。",
+      "choices": [
+        {
+          "label": "A",
+          "choiceText": "インスタンスは同一サーバー上の複数のデータベースに関連付けられている",
+          "isCorrect": false
+        },
+        {
+          "label": "B",
+          "choiceText": "異なるサーバー上の複数インスタンスが1つのデータベースに関連付けられている",
+          "isCorrect": true
+        },
+        {
+          "label": "C",
+          "choiceText": "同一サーバー上の1つのインスタンスが1つのデータベースに関連付けられている",
+          "isCorrect": true
+        },
+        {
+          "label": "D",
+          "choiceText": "同一サーバー上の複数のインスタンスが、それぞれのインスタンスに対しデータベースを関連付けている",
+          "isCorrect": true
+        },
+        {
+          "label": "E",
+          "choiceText": "インスタンスは異なるサーバー上の複数のデータベースに関連付けられている",
+          "isCorrect": false
+        }
+      ]
+    },
+    {
+      "categoryName": "Oracleインスタンスの構造",
+      "questionText": "SGA（システム・グローバル領域）とPGA（プログラム・グローバル領域）の説明として正しいものを2つ選択してください。",
+      "questionType": "multiple",
+      "difficulty": "medium",
+      "explanation": "SGAは複数のプロセスが共有するデータを置くメモリ領域で、表のデータなどをキャッシュします。PGAはサーバープロセスなど個々のプロセスが自分専用に使うメモリ領域で、他のプロセスとは共有しません。ソート処理などで使用されます。",
+      "choices": [
+        {
+          "label": "A",
+          "choiceText": "SGAは複数のプロセスが共有するデータを格納するメモリ領域である",
+          "isCorrect": true
+        },
+        {
+          "label": "B",
+          "choiceText": "PGAは個々のプロセスが自分用にデータを置くメモリ領域で、他プロセスと共有しない",
+          "isCorrect": true
+        },
+        {
+          "label": "C",
+          "choiceText": "PGAは複数のサーバープロセスで共有される",
+          "isCorrect": false
+        },
+        {
+          "label": "D",
+          "choiceText": "SGAはプロセスごとに個別に確保される",
+          "isCorrect": false
+        }
+      ]
+    },
+    {
+      "categoryName": "Oracleインスタンスの構造",
+      "questionText": "データベース・バッファ・キャッシュの説明として正しいものを1つ選択してください。",
+      "questionType": "single",
+      "difficulty": "medium",
+      "explanation": "データベース・バッファ・キャッシュはSGA内の領域で、よく使われる表などのデータをキャッシュします。INSERTやUPDATEなどのDMLも、まずこのキャッシュ上のデータに対して変更を行います。空きがなくなると、最も使用されていないデータから解放されます（LRUアルゴリズム）。",
+      "choices": [
+        {
+          "label": "A",
+          "choiceText": "SQLの構文チェックや実行計画をキャッシュする領域である",
+          "isCorrect": false
+        },
+        {
+          "label": "B",
+          "choiceText": "よく使われる表などのデータをキャッシュし、空きがなくなるとLRUアルゴリズムで解放される",
+          "isCorrect": true
+        },
+        {
+          "label": "C",
+          "choiceText": "DML文・DDL文の実行履歴を記録として保持する領域である",
+          "isCorrect": false
+        },
+        {
+          "label": "D",
+          "choiceText": "バックアップなど大量のメモリを確保する際に使用するオプションの領域である",
+          "isCorrect": false
+        }
+      ]
+    },
+    {
+      "categoryName": "Oracleインスタンスの構造",
+      "questionText": "SQL文の構文チェック、権限チェック、実行計画などのキャッシュを行うSGA内の領域はどれですか。1つ選択してください。",
+      "questionType": "single",
+      "difficulty": "easy",
+      "explanation": "共有プールはSGA内の領域の1つで、SQL文の構文チェック・権限チェックの結果や実行計画をキャッシュします。同じSQLが再実行された際の解析コストを削減します。",
+      "choices": [
+        { "label": "A", "choiceText": "共有プール", "isCorrect": true },
+        { "label": "B", "choiceText": "データベース・バッファ・キャッシュ", "isCorrect": false },
+        { "label": "C", "choiceText": "REDOログ・バッファ", "isCorrect": false },
+        { "label": "D", "choiceText": "ラージ・プール", "isCorrect": false }
+      ]
+    },
+    {
+      "categoryName": "Oracleインスタンスの構造",
+      "questionText": "ラージ・プールに関する記述として正しいものを2つ選択してください。",
+      "questionType": "multiple",
+      "difficulty": "hard",
+      "explanation": "ラージ・プールは、バックアップなど何らかの処理で大量のメモリを確保する必要がある際に使用するSGA内の領域です。オプション扱いのため必ずしも用意する必要はなく、使用しない場合は共有プールが代わりに使われます。ただし基本的には用意したほうがよいとされます。",
+      "choices": [
+        {
+          "label": "A",
+          "choiceText": "バックアップなど大量のメモリを確保する処理で使用される",
+          "isCorrect": true
+        },
+        {
+          "label": "B",
+          "choiceText": "オプション扱いであり、必ずしも用意する必要はない",
+          "isCorrect": true
+        },
+        {
+          "label": "C",
+          "choiceText": "ラージ・プールを構成しない場合、インスタンスは起動できない",
+          "isCorrect": false
+        },
+        {
+          "label": "D",
+          "choiceText": "個々のサーバープロセス専用のソート領域として使用される",
+          "isCorrect": false
+        }
+      ]
+    },
+    {
+      "categoryName": "プロセス・アーキテクチャ",
+      "questionText": "PMONバックグラウンド・プロセスに関して正しい記述を2つ選択してください。",
+      "questionType": "multiple",
+      "difficulty": "hard",
+      "explanation": "PMONは異常終了したプロセスが保持していたリソースを解放し、アイドル時間を超えたセッションを強制終了します。リスナーへのサービス登録はLREG（12c以前はPMONが担当）、一時セグメントの解放とインスタンスリカバリはSMON、チェックポイント情報の制御ファイルへの書き込みはCKPT、データファイルからバッファキャッシュへの読み込みはサーバープロセスの役割です。",
+      "choices": [
+        {
+          "label": "A",
+          "choiceText": "異常終了したプロセスが保持していたリソースを解放する",
+          "isCorrect": true
+        },
+        {
+          "label": "B",
+          "choiceText": "インスタンスが認識しているすべてのリスナーにサービスを登録する",
+          "isCorrect": false
+        },
+        {
+          "label": "C",
+          "choiceText": "アイドル時間を超えたセッションを強制的に終了する",
+          "isCorrect": true
+        },
+        {
+          "label": "D",
+          "choiceText": "使用されていない一時セグメントを解放し、クリーンアップする",
+          "isCorrect": false
+        },
+        {
+          "label": "E",
+          "choiceText": "チェックポイントの情報を制御ファイルに書き込む",
+          "isCorrect": false
+        },
+        {
+          "label": "F",
+          "choiceText": "データファイルのブロックをデータベース・バッファ・キャッシュに読み込む",
+          "isCorrect": false
+        },
+        { "label": "G", "choiceText": "インスタンスリカバリを実行する", "isCorrect": false }
+      ]
+    },
+    {
+      "categoryName": "プロセス・アーキテクチャ",
+      "questionText": "データベース・ライター・プロセス（DBWn）の役割として正しいものを1つ選択してください。",
+      "questionType": "single",
+      "difficulty": "medium",
+      "explanation": "DBWnはバックグラウンドプロセスの1つで、データベース・バッファ・キャッシュ内で変更済みとなったデータ（ダーティ・バッファ）を、データファイルへ書き込みます。",
+      "choices": [
+        {
+          "label": "A",
+          "choiceText": "データベース・バッファ・キャッシュ内の変更済みデータをデータファイルへ書き込む",
+          "isCorrect": true
+        },
+        {
+          "label": "B",
+          "choiceText": "REDOログ・バッファの内容をREDOログ・ファイルへ書き込む",
+          "isCorrect": false
+        },
+        {
+          "label": "C",
+          "choiceText": "ユーザープロセスからのリクエストを直接処理する",
+          "isCorrect": false
+        },
+        {
+          "label": "D",
+          "choiceText": "リスナーへインスタンスのサービス情報を登録する",
+          "isCorrect": false
+        }
+      ]
+    },
+    {
+      "categoryName": "プロセス・アーキテクチャ",
+      "questionText": "Oracleにおける「接続（コネクション）」と「セッション」の違いとして正しいものを1つ選択してください。",
+      "questionType": "single",
+      "difficulty": "medium",
+      "explanation": "接続はユーザープロセスとサーバープロセスがつながった状態、つまりリクエストを出すための前準備ができている状態を指します。セッションは個々の接続で確立された状態を指し、同じアカウントであっても別々にユーザープロセスを起動していれば、別のセッションとして扱われます。",
+      "choices": [
+        {
+          "label": "A",
+          "choiceText": "接続はユーザープロセスとサーバープロセスがつながった状態、セッションは個々の接続で確立された状態を指す",
+          "isCorrect": true
+        },
+        {
+          "label": "B",
+          "choiceText": "接続とセッションは完全に同じ意味であり、区別されない",
+          "isCorrect": false
+        },
+        {
+          "label": "C",
+          "choiceText": "同じアカウントであれば、複数のユーザープロセスを起動しても常に1セッションである",
+          "isCorrect": false
+        },
+        {
+          "label": "D",
+          "choiceText": "セッションはインスタンス起動時に1つだけ作成される",
+          "isCorrect": false
+        }
+      ]
+    },
+    {
+      "categoryName": "Oracle Databaseの管理ツール",
+      "questionText": "Oracle Enterprise Manager Database Expressに関して正しい記述を2つ選択してください。",
+      "questionType": "multiple",
+      "difficulty": "hard",
+      "explanation": "Database Expressはブラウザから使用する軽量なツールで、その実体はOracleデータベース・サーバー内で稼働しています。そのため、データベースがオープン状態でなければ使用できず、データベースの起動・停止やリカバリには利用できません。また、ポート番号はデータベースごとに異なる値を割り当てる必要がありますが、ハードウェアが異なれば同じポート番号を使用できます。",
+      "choices": [
+        {
+          "label": "A",
+          "choiceText": "ハードウェアが異なればDatabase Expressのポート番号を同じにすることができる",
+          "isCorrect": true
+        },
+        {
+          "label": "B",
+          "choiceText": "同じハードウェア上でもデータベースが異なればポート番号を同じにすることができる",
+          "isCorrect": false
+        },
+        {
+          "label": "C",
+          "choiceText": "データベースを起動・停止することができる",
+          "isCorrect": false
+        },
+        {
+          "label": "D",
+          "choiceText": "データベースがオープンしているときのみ使用できる",
+          "isCorrect": true
+        },
+        {
+          "label": "E",
+          "choiceText": "データベースのリカバリを実行することができる",
+          "isCorrect": false
+        },
+        {
+          "label": "F",
+          "choiceText": "大量のテキストデータを効率的にローディングする際に利用できる",
+          "isCorrect": false
+        }
+      ]
+    },
+    {
+      "categoryName": "Oracle Databaseの管理ツール",
+      "questionText": "Oracle Enterprise Manager Cloud Controlの構成に関して正しい記述を3つ選択してください。",
+      "questionType": "multiple",
+      "difficulty": "hard",
+      "explanation": "Cloud ControlはOracle Databaseとは別製品のため、別途インストールが必要です。複数のOracleデータベースをまとめて管理でき、管理対象の各マシンではエージェントが稼働している必要があります。また、エージェントを管理するサーバーと、情報を格納するリポジトリも必要です。",
+      "choices": [
+        {
+          "label": "A",
+          "choiceText": "Oracle Databaseとは別製品であり、別途インストールが必要である",
+          "isCorrect": true
+        },
+        {
+          "label": "B",
+          "choiceText": "複数のOracleデータベースをまとめて管理することができる",
+          "isCorrect": true
+        },
+        {
+          "label": "C",
+          "choiceText": "管理対象の各マシンにはエージェントが稼働している必要がある",
+          "isCorrect": true
+        },
+        {
+          "label": "D",
+          "choiceText": "Oracle Databaseに同梱されており、追加インストールは不要である",
+          "isCorrect": false
+        },
+        {
+          "label": "E",
+          "choiceText": "リポジトリを持たず、すべての情報をメモリ上のみで管理する",
+          "isCorrect": false
+        }
+      ]
+    },
+    {
+      "categoryName": "初期化パラメータとインスタンスの起動停止",
+      "questionText": "SPFILEとPFILEに関する記述として正しいものを2つ選択してください。",
+      "questionType": "multiple",
+      "difficulty": "medium",
+      "explanation": "SPFILEはバイナリファイルであり、ALTER SYSTEM文などのSQLで動的に変更します。PFILEはテキストファイルのためユーザーが直接編集できますが、変更を反映するにはインスタンスの再起動が必要です。",
+      "choices": [
+        {
+          "label": "A",
+          "choiceText": "SPFILEはバイナリファイルであり、SQLで動的に変更できる",
+          "isCorrect": true
+        },
+        {
+          "label": "B",
+          "choiceText": "PFILEはテキストファイルであり、ユーザーが直接修正できる",
+          "isCorrect": true
+        },
+        {
+          "label": "C",
+          "choiceText": "PFILEの変更はインスタンスを再起動しなくても即座に反映される",
+          "isCorrect": false
+        },
+        {
+          "label": "D",
+          "choiceText": "SPFILEはテキストエディタで直接編集することが推奨される",
+          "isCorrect": false
+        }
+      ]
+    },
+    {
+      "categoryName": "初期化パラメータとインスタンスの起動停止",
+      "questionText": "静的パラメータと動的パラメータの違いとして正しいものを1つ選択してください。",
+      "questionType": "single",
+      "difficulty": "medium",
+      "explanation": "初期化パラメータには静的パラメータと動的パラメータの2種類があります。静的パラメータは変更後にデータベースの再起動が必要ですが、動的パラメータは必要に応じて変更し、再起動なしで反映できます。",
+      "choices": [
+        {
+          "label": "A",
+          "choiceText": "静的パラメータは変更後に再起動が必要だが、動的パラメータは再起動なしで反映できる",
+          "isCorrect": true
+        },
+        {
+          "label": "B",
+          "choiceText": "動的パラメータは変更後に再起動が必要だが、静的パラメータは再起動なしで反映できる",
+          "isCorrect": false
+        },
+        {
+          "label": "C",
+          "choiceText": "どちらも変更後は必ずインスタンスの再起動が必要である",
+          "isCorrect": false
+        },
+        {
+          "label": "D",
+          "choiceText": "どちらも再起動なしで即座に反映される",
+          "isCorrect": false
+        }
+      ]
+    },
+    {
+      "categoryName": "初期化パラメータとインスタンスの起動停止",
+      "questionText": "現在の初期化パラメータの値を参照するために使用する動的パフォーマンス・ビューはどれですか。1つ選択してください。",
+      "questionType": "single",
+      "difficulty": "easy",
+      "explanation": "初期化パラメータの値はV$PARAMETERという動的パフォーマンス・ビューで参照できます。SQL*Plusではshow parameterコマンドでも参照でき、引数はあいまい検索として扱われます。",
+      "choices": [
+        { "label": "A", "choiceText": "V$PARAMETER", "isCorrect": true },
+        { "label": "B", "choiceText": "V$INSTANCE", "isCorrect": false },
+        { "label": "C", "choiceText": "DBA_TABLES", "isCorrect": false },
+        { "label": "D", "choiceText": "V$DATAFILE", "isCorrect": false }
+      ]
+    },
+    {
+      "categoryName": "初期化パラメータとインスタンスの起動停止",
+      "questionText": "インスタンスの起動段階に関する説明として正しいものを2つ選択してください。",
+      "questionType": "multiple",
+      "difficulty": "medium",
+      "explanation": "NOMOUNT段階では初期化パラメータファイルを読み取ってインスタンスを起動します。MOUNT段階では制御ファイルをオープンします。startupコマンドではどの段階まで進めるかを指定でき、ALTER DATABASE文で1段階ずつ進めることもできます。",
+      "choices": [
+        {
+          "label": "A",
+          "choiceText": "NOMOUNT段階では初期化パラメータファイルを読み取る",
+          "isCorrect": true
+        },
+        {
+          "label": "B",
+          "choiceText": "MOUNT段階では制御ファイルをオープンする",
+          "isCorrect": true
+        },
+        {
+          "label": "C",
+          "choiceText": "NOMOUNT段階でデータファイルがオープンされる",
+          "isCorrect": false
+        },
+        {
+          "label": "D",
+          "choiceText": "起動段階を1段階ずつ進めることはできず、常にOPENまで一度に起動される",
+          "isCorrect": false
+        }
+      ]
+    },
+    {
+      "categoryName": "初期化パラメータとインスタンスの起動停止",
+      "questionText": "SHUTDOWN ABORTに関する記述として正しいものを1つ選択してください。",
+      "questionType": "single",
+      "difficulty": "hard",
+      "explanation": "SHUTDOWN ABORTは強制的にインスタンスを停止するモードです。正式な終了処理を行わないため、データベース・バッファ・キャッシュ上の変更がデータファイルへ反映されず、次回起動時にインスタンス・リカバリが必要になります。一方、NORMALやIMMEDIATEは正常終了のためリカバリ作業は不要です。",
+      "choices": [
+        {
+          "label": "A",
+          "choiceText": "正式な終了処理を行わないため、次回起動時にインスタンス・リカバリが必要になる",
+          "isCorrect": true
+        },
+        {
+          "label": "B",
+          "choiceText": "正常終了の一種であり、リカバリ作業は不要である",
+          "isCorrect": false
+        },
+        {
+          "label": "C",
+          "choiceText": "接続中のすべてのユーザーが切断するまで待機してから停止する",
+          "isCorrect": false
+        },
+        {
+          "label": "D",
+          "choiceText": "SHUTDOWNコマンドのデフォルトのオプションである",
+          "isCorrect": false
+        }
+      ]
+    },
+    {
+      "categoryName": "データベースの状態確認",
+      "questionText": "アラート・ログ・ファイルとトレース・ファイルに関する記述として正しいものを2つ選択してください。",
+      "questionType": "multiple",
+      "difficulty": "medium",
+      "explanation": "アラート・ログ・ファイルは一般的なシステムのログファイルに相当し、エラーだけでなく通常のメッセージも記録されます。トレース・ファイルは、サーバープロセスやバックグラウンドプロセスで問題が起きた際に、プロセスごとに出力されるファイルです。",
+      "choices": [
+        {
+          "label": "A",
+          "choiceText": "アラート・ログにはエラー以外の通常のメッセージも記録される",
+          "isCorrect": true
+        },
+        {
+          "label": "B",
+          "choiceText": "トレース・ファイルはプロセスごとに出力される",
+          "isCorrect": true
+        },
+        {
+          "label": "C",
+          "choiceText": "アラート・ログにはエラーのみが記録される",
+          "isCorrect": false
+        },
+        {
+          "label": "D",
+          "choiceText": "トレース・ファイルはデータベース全体で常に1つだけ生成される",
+          "isCorrect": false
+        }
+      ]
+    },
+    {
+      "categoryName": "論理・物理データベース構造",
+      "questionText": "論理・物理データベース構造に関して正しい記述を3つ選択してください。",
+      "questionType": "multiple",
+      "difficulty": "hard",
+      "explanation": "セグメントは1つの表領域に属して管理されるため、複数の表領域にまたがることはありません。一方、表領域は複数のデータファイルを持てるため、セグメントが複数のデータファイルにまたがることはあります。エクステントが1つだけのセグメントも存在します。また、smallfile表領域は複数のデータファイルを持てるため、単一データファイルのbigfile表領域よりも大きくなる場合があります。",
+      "choices": [
+        {
+          "label": "A",
+          "choiceText": "セグメントのエクステントは、常に同じデータファイル内に存在する",
+          "isCorrect": false
+        },
+        {
+          "label": "B",
+          "choiceText": "セグメントに1つのエクステントしかない場合がある",
+          "isCorrect": true
+        },
+        {
+          "label": "C",
+          "choiceText": "表領域に、データファイルが含まれない場合がある",
+          "isCorrect": false
+        },
+        {
+          "label": "D",
+          "choiceText": "セグメントは表領域に属する複数のデータファイルにまたがる場合がある",
+          "isCorrect": true
+        },
+        {
+          "label": "E",
+          "choiceText": "セグメントは複数の表領域にまたがる場合がある",
+          "isCorrect": false
+        },
+        {
+          "label": "F",
+          "choiceText": "セグメント内にサイズが異なるブロックが含まれる場合がある",
+          "isCorrect": false
+        },
+        {
+          "label": "G",
+          "choiceText": "smallfile表領域のサイズが、bigfile表領域のサイズよりも大きい場合がある",
+          "isCorrect": true
+        }
+      ]
+    }
+  ]
+}

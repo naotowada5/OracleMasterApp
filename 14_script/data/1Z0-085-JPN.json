@@ -1,0 +1,109 @@
+{
+  "qualificationId": "1Z0-085-JPN",
+  "qualificationName": "Oracle Master Bronze DBA",
+  "level": "bronze",
+  "questions": [
+    {
+      "categoryName": "Oracleデータベースの概要",
+      "questionText": "Oracleデータベース・サーバーを構成する2つの要素として正しいものを1つ選択してください。",
+      "questionType": "single",
+      "difficulty": "easy",
+      "explanation": "Oracleデータベース・サーバーは、メモリ上の構造である「インスタンス」と、ハードディスク上のファイル群である「データベース」から構成されます。",
+      "choices": [
+        { "label": "A", "choiceText": "インスタンスとデータベース", "isCorrect": true },
+        { "label": "B", "choiceText": "リスナーとクライアント", "isCorrect": false },
+        { "label": "C", "choiceText": "表領域とスキーマ", "isCorrect": false },
+        { "label": "D", "choiceText": "SQL*PlusとSQL Developer", "isCorrect": false }
+      ]
+    },
+    {
+      "categoryName": "Oracleデータベースの概要",
+      "questionText": "Oracle Databaseの管理ツールに関する説明の組み合わせとして正しいものを2つ選択してください。",
+      "questionType": "multiple",
+      "difficulty": "easy",
+      "explanation": "SQL*Plusはコマンドラインツール、SQL DeveloperはGUIツール、Enterprise Manager Database Expressはブラウザを使用するGUIツールです。SQL Developerは無料でダウンロードでき、GUIでありながらSQL文をコマンドで実行できるシートも備えています。",
+      "choices": [
+        { "label": "A", "choiceText": "SQL*Plusはコマンドラインツールである", "isCorrect": true },
+        {
+          "label": "B",
+          "choiceText": "Enterprise Manager Database Expressはブラウザを使用するGUIツールである",
+          "isCorrect": true
+        },
+        {
+          "label": "C",
+          "choiceText": "SQL Developerはブラウザ上でのみ動作するツールである",
+          "isCorrect": false
+        },
+        {
+          "label": "D",
+          "choiceText": "SQL*PlusはGUI専用であり、コマンド実行はできない",
+          "isCorrect": false
+        }
+      ]
+    },
+    {
+      "categoryName": "インスタンスの起動と停止",
+      "questionText": "インスタンス起動時のNOMOUNT段階で行われる処理として正しいものを1つ選択してください。",
+      "questionType": "single",
+      "difficulty": "medium",
+      "explanation": "NOMOUNT段階では初期化パラメータファイルを読み取り、その内容に従ってインスタンス（メモリ構造とバックグラウンドプロセス）を起動します。制御ファイルのオープンはMOUNT段階、データファイルのオープンはOPEN段階で行われます。",
+      "choices": [
+        { "label": "A", "choiceText": "初期化パラメータファイルを読み取る", "isCorrect": true },
+        { "label": "B", "choiceText": "制御ファイルをオープンする", "isCorrect": false },
+        { "label": "C", "choiceText": "データファイルをオープンする", "isCorrect": false },
+        { "label": "D", "choiceText": "REDOログファイルをアーカイブする", "isCorrect": false }
+      ]
+    },
+    {
+      "categoryName": "インスタンスの起動と停止",
+      "questionText": "SHUTDOWNコマンドで停止モードを省略した場合に適用されるデフォルトのモードはどれですか。1つ選択してください。",
+      "questionType": "single",
+      "difficulty": "medium",
+      "explanation": "SHUTDOWNコマンドの停止モードを省略した場合、NORMALが適用されます。NORMALは接続中のすべてのユーザーが切断するまで待機してから停止する、最も安全なモードです。",
+      "choices": [
+        { "label": "A", "choiceText": "NORMAL", "isCorrect": true },
+        { "label": "B", "choiceText": "IMMEDIATE", "isCorrect": false },
+        { "label": "C", "choiceText": "TRANSACTIONAL", "isCorrect": false },
+        { "label": "D", "choiceText": "ABORT", "isCorrect": false }
+      ]
+    },
+    {
+      "categoryName": "メモリー構造",
+      "questionText": "REDOログ・バッファの役割として正しいものを1つ選択してください。",
+      "questionType": "single",
+      "difficulty": "medium",
+      "explanation": "REDOログ・バッファはSGA内の領域で、データベースに対して行われたDML文・DDL文を変更履歴として保持します。データベースの故障などでDML・DDLの再実行が必要になった際に使用されます。",
+      "choices": [
+        {
+          "label": "A",
+          "choiceText": "データベースへの変更履歴（DML文・DDL文）を記録として保持する",
+          "isCorrect": true
+        },
+        {
+          "label": "B",
+          "choiceText": "よく使われる表のデータをキャッシュする",
+          "isCorrect": false
+        },
+        { "label": "C", "choiceText": "SQLの実行計画をキャッシュする", "isCorrect": false },
+        {
+          "label": "D",
+          "choiceText": "個々のサーバープロセス専用のソート領域として使用される",
+          "isCorrect": false
+        }
+      ]
+    },
+    {
+      "categoryName": "メモリー構造",
+      "questionText": "ユーザーからのリクエストにソート処理が含まれる場合、まず使用されるメモリ領域はどれですか。1つ選択してください。",
+      "questionType": "single",
+      "difficulty": "hard",
+      "explanation": "ソート処理はPGA（プログラム・グローバル領域）で行われます。PGAに保持したソート条件をもとに、データベース・バッファ・キャッシュ内のデータをソートします。ただしデータ量が多い場合はデータベース・バッファ・キャッシュ内でソートされます。",
+      "choices": [
+        { "label": "A", "choiceText": "PGA（プログラム・グローバル領域）", "isCorrect": true },
+        { "label": "B", "choiceText": "共有プール", "isCorrect": false },
+        { "label": "C", "choiceText": "REDOログ・バッファ", "isCorrect": false },
+        { "label": "D", "choiceText": "ラージ・プール", "isCorrect": false }
+      ]
+    }
+  ]
+}
