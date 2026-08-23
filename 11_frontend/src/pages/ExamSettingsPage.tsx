@@ -144,7 +144,10 @@ export function ExamSettingsPage() {
 
   return (
     <Layout title="出題設定" backTo="/">
-      <form onSubmit={handleStart} className="settings-form">
+      {/* ブラウザ標準の検証を止め、S-05 §5 の文言で統一して表示する。
+          標準の検証バブルはブラウザ・言語ごとに文面が変わり、設計の
+          エラーメッセージが一切出なくなるため */}
+      <form onSubmit={handleStart} className="settings-form" noValidate>
         <label className="field">
           <span className="field__label">資格種別</span>
           <select value={qualificationId} onChange={(e) => setQualificationId(e.target.value)}>

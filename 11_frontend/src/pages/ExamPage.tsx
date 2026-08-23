@@ -7,7 +7,7 @@
  * **正誤判定はクライアントで行わず、必ず API-08 の結果を使う**
  * （クライアントに正解を渡さない設計。要件定義書 §9.1）。
  */
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { toDisplayMessage } from '../api/client';
 import { finishSession, submitAnswer } from '../api/endpoints';
@@ -72,9 +72,13 @@ export function ExamPage() {
     [exam, question, isSubmitting, elapsedSec, setLastResult, navigate],
   );
 
+  // 終了処理の待機中もタイマーは進み続けるため、多重に走らせない
+  const isTimeUpHandled = useRef(false);
+
   // 制限時間切れ（S-06 §4）: セッションを終了して結果画面へ
   const handleTimeUp = useCallback(async () => {
-    if (!exam) return;
+    if (!exam || isTimeUpHandled.current) return;
+    isTimeUpHandled.current = true;
     try {
       await finishSession(exam.sessionId);
     } catch {

@@ -12,6 +12,8 @@ cdk.out/
 .env
 .env.*
 !.env.example
+# E2Eテスト用の設定はダミー値のみで機密を含まないため追跡する
+!.env.e2e
 
 # Logs
 *.log

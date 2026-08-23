@@ -13,5 +13,7 @@ export default defineConfig({
     globals: true,
     environment: 'jsdom',
     setupFiles: ['./src/test/setup.ts'],
+    // e2e/ は Playwright が実行する。Vitest から拾わせない
+    include: ['src/**/*.{test,spec}.{ts,tsx}'],
   },
 });
