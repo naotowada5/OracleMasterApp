@@ -17,7 +17,7 @@ import { requestOrigin, withErrorHandling } from '../common/handler';
 import { parseJsonBody } from '../common/request';
 import { ok } from '../common/response';
 import { extractCorrectChoiceIds, isAnswerCorrect } from '../services/scoring-service';
-import type { AnswerHistoryItem, ChoiceItem, ExamSessionItem } from '../models';
+import type { AnswerHistoryItem, ChoiceItem, ExamSessionItem, QuestionItem } from '../models';
 
 interface UpdateSessionBody {
   action?: unknown;
@@ -100,6 +100,9 @@ async function handleAnswer(
 
   const { questionId, selectedChoiceIds, elapsedSec } = parseAnswer(body);
 
+  // 解説は採点後にのみ開示する（API-08 §7）。出題時（API-04）には含めない
+  const question = await getItem<QuestionItem>(tableName(TABLES.QUESTION), { questionId });
+
   // 正解集合は必ずサーバー側で算出する
   const { items: choices } = await query<ChoiceItem>({
     TableName: tableName(TABLES.CHOICE),
@@ -124,6 +127,7 @@ async function handleAnswer(
       questionId,
       isCorrect: existing.isCorrect,
       correctChoiceIds,
+      explanation: question?.explanation ?? '',
       sessionStatus: session.status,
       sessionCorrectCount: session.correctCount,
       isLastQuestion: histories.length >= session.totalQuestions,
@@ -185,6 +189,7 @@ async function handleAnswer(
     isCorrect: correct,
     // 解説画面（S-07）のハイライト表示に使う。採点後なので開示してよい
     correctChoiceIds,
+    explanation: question?.explanation ?? '',
     sessionStatus: updated?.status ?? (expired ? 'expired' : session.status),
     sessionCorrectCount: updated?.correctCount ?? session.correctCount + (correct ? 1 : 0),
     // 出題数に達したか（S-07 の「結果を見る」ボタン表示判定に利用）

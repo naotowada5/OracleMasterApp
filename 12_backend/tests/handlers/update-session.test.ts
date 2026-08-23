@@ -46,6 +46,18 @@ function choice(choiceId: string, isCorrect: boolean, sortOrder: number) {
   };
 }
 
+const QUESTION = {
+  questionId: 'q-1',
+  qualificationId: '1Z0-085-JPN',
+  categoryId: 'c-1',
+  questionText: '問題文',
+  questionType: 'multiple' as const,
+  correctCount: 2,
+  explanation: '事前登録済みの解説テキスト',
+  isActive: true,
+  ...AUDIT,
+};
+
 /** 正解は ch-1 と ch-3 の複数選択問題 */
 const MULTI_CHOICES = [
   choice('ch-1', true, 1),
@@ -53,6 +65,17 @@ const MULTI_CHOICES = [
   choice('ch-3', true, 3),
   choice('ch-4', false, 4),
 ];
+
+/**
+ * getItem はセッションと問題の両方で呼ばれるため、テーブル名で応答を切り替える。
+ * 呼び出し順に依存しないようにするための措置。
+ */
+function setSession(overrides: Record<string, unknown> | null = {}) {
+  mockGetItem.mockImplementation(async (table: string) => {
+    if (table.includes('OR_M_QUESTION')) return QUESTION as never;
+    return overrides === null ? undefined : (session(overrides) as never);
+  });
+}
 
 function buildEvent(body: unknown, sub = 'owner-sub', sessionId = 's-1'): APIGatewayProxyEvent {
   return {
@@ -81,7 +104,7 @@ describe('API-08 セッション更新', () => {
     process.env.LOG_LEVEL = 'ERROR';
     // mockResolvedValueOnce のキューを次のテストへ持ち越さないため実装ごとリセットする
     jest.resetAllMocks();
-    mockGetItem.mockResolvedValue(session());
+    setSession();
     mockUpdateItem.mockImplementation(async () => session({ correctCount: 5 }));
   });
 
@@ -100,7 +123,7 @@ describe('API-08 セッション更新', () => {
     });
 
     it('存在しないセッションは 404', async () => {
-      mockGetItem.mockResolvedValue(undefined);
+      setSession(null);
 
       const result = await handler(
         buildEvent({ action: 'answer', questionId: 'q-1', selectedChoiceIds: ['ch-1'] }),
@@ -111,7 +134,7 @@ describe('API-08 セッション更新', () => {
     });
 
     it.each(['completed', 'expired'])('終了済み（%s）セッションへの回答は 409', async (status) => {
-      mockGetItem.mockResolvedValue(session({ status }));
+      setSession({ status });
 
       const result = await handler(
         buildEvent({ action: 'answer', questionId: 'q-1', selectedChoiceIds: ['ch-1'] }),
@@ -232,6 +255,21 @@ describe('API-08 セッション更新', () => {
       expect(mockUpdateItem.mock.calls[0][0].ExpressionAttributeValues?.[':increment']).toBe(0);
     });
 
+    it('採点後は解説テキストを返す（S-07 で表示。出題時には含めない）', async () => {
+      mockQueries();
+
+      const body = JSON.parse(
+        (
+          await handler(
+            buildEvent({ action: 'answer', questionId: 'q-1', selectedChoiceIds: ['ch-1'] }),
+            CONTEXT,
+          )
+        ).body,
+      );
+
+      expect(body.explanation).toBe('事前登録済みの解説テキスト');
+    });
+
     it('採点後は correctChoiceIds を返す（S-07 のハイライト表示用）', async () => {
       mockQueries();
 
@@ -331,7 +369,7 @@ describe('API-08 セッション更新', () => {
     });
 
     it('出題数に達したら true', async () => {
-      mockGetItem.mockResolvedValue(session({ totalQuestions: 3 }));
+      setSession({ totalQuestions: 3 });
       const answered = [
         {
           historyId: 'h-1',
@@ -395,7 +433,7 @@ describe('API-08 セッション更新', () => {
     });
 
     it('timeLimitMin=0（無制限）では超過扱いにしない', async () => {
-      mockGetItem.mockResolvedValue(session({ timeLimitMin: 0 }));
+      setSession({ timeLimitMin: 0 });
       mockQueries();
 
       await handler(
@@ -427,7 +465,7 @@ describe('API-08 セッション更新', () => {
     });
 
     it('制限時間を超過していれば expired にする', async () => {
-      mockGetItem.mockResolvedValue(session({ elapsedSec: 1900 }));
+      setSession({ elapsedSec: 1900 });
       mockUpdateItem.mockResolvedValue(session({ status: 'expired' }));
 
       await handler(buildEvent({ action: 'finish' }), CONTEXT);
@@ -438,9 +476,7 @@ describe('API-08 セッション更新', () => {
     });
 
     it('既に終了済みなら冪等に現状を返しエラーにしない', async () => {
-      mockGetItem.mockResolvedValue(
-        session({ status: 'completed', finishedAt: '2026-08-18T10:31:00.000Z' }),
-      );
+      setSession({ status: 'completed', finishedAt: '2026-08-18T10:31:00.000Z' });
 
       const result = await handler(buildEvent({ action: 'finish' }), CONTEXT);
       const body = JSON.parse(result.body);

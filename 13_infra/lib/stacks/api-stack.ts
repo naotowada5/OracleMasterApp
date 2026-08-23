@@ -178,8 +178,9 @@ export class ApiStack extends Stack {
       apiId: 'API-08',
       id: 'UpdateSessionFunction',
       entry: 'update-session',
-      // 採点のため選択肢の読み取りが必要。正解集合は必ずサーバー側で算出する
-      readTables: ['OR_M_CHOICE'],
+      // 採点のため選択肢、解説の返却のため問題の読み取りが必要。
+      // 正解集合は必ずサーバー側で算出する
+      readTables: ['OR_M_QUESTION', 'OR_M_CHOICE'],
       readWriteTables: ['OR_T_EXAM_SESSION', 'OR_T_ANSWER_HISTORY'],
     });
 
@@ -187,7 +188,8 @@ export class ApiStack extends Stack {
       apiId: 'API-09',
       id: 'GetSessionFunction',
       entry: 'get-session',
-      readTables: ['OR_T_EXAM_SESSION', 'OR_T_ANSWER_HISTORY'],
+      // S-09 の問題別詳細表示のため、問題本体と選択肢の読み取りが必要
+      readTables: ['OR_T_EXAM_SESSION', 'OR_T_ANSWER_HISTORY', 'OR_M_QUESTION', 'OR_M_CHOICE'],
       readWriteTables: [],
     });
 
