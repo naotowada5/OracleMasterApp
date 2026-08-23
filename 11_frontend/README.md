@@ -67,12 +67,20 @@ npx playwright install chromium
 
 ### プロジェクト構成
 
-| プロジェクト | 対象 |
-| --- | --- |
-| `chromium` | デスクトップ幅（1280×720） |
-| `mobile` | スマートフォン幅（375×812、Chromium のモバイルエミュレーション） |
+要件定義書 §8.4 の対応ブラウザを網羅する。
 
-Safari / Firefox など他エンジンでの互換性確認は T5-3 で別途行う。
+| プロジェクト | 対象 | エンジン |
+| --- | --- | --- |
+| `chromium` | PC Chrome | Chromium |
+| `edge` | PC Edge（実機のチャネルを使用） | Chromium |
+| `webkit` | PC Safari | WebKit |
+| `mobile` | Android Chrome（375×812） | Chromium |
+| `mobile-safari` | iOS Safari（iPhone 13） | WebKit |
+
+Firefox は対応表に含まれないため既定では実行しない。有効にするには
+`PW_FIREFOX=1` を付ける。ただし Playwright 同梱の Firefox は起動に Microsoft
+Visual C++ 再頒布可能パッケージを要求し、未導入の Windows では
+`browserType.launch: spawn UNKNOWN` で失敗する。
 
 ### テストの内容
 
@@ -89,3 +97,37 @@ Safari / Firefox など他エンジンでの互換性確認は T5-3 で別途行
   **回数**に依存したモックを書くと不安定になるので、明示的なフラグで切り替える。
 - APIモックのURLマッチにグロブ（`**/api/**`）を使うと、Vite が配信する
   `/src/api/*.ts` まで巻き込んでアプリが起動しなくなる。パス前方一致で判定している。
+
+## 非機能テスト（T5-3）
+
+```bash
+npm run test:perf
+```
+
+**本番ビルドを配信して**計測する（Service Worker は `import.meta.env.PROD` の
+ときだけ登録されるため、開発サーバでは PWA を確認できない）。確認するのは
+初回表示時間、オフライン起動、マニフェストのアイコン実在、APIレスポンスを
+キャッシュしないこと。
+
+## PWAアイコン
+
+`public/icons/` の2ファイルは `scripts/generate-icons.mjs` で生成した**暫定版**。
+テーマカラーの背景に「OM」を置いただけのもので、リリース前に本デザインへ
+差し替える。再生成は次のコマンド。
+
+```bash
+node scripts/generate-icons.mjs
+```
+
+## 既知の環境問題（Windows + Node.js 24）
+
+本プロジェクトの想定ランタイムは **Node.js 22.x**（`.nvmrc`）。Node.js 24 系の
+Windows 版には、**パスに非ASCII文字を含むディレクトリを `fs.rm` /`fs.rmSync` の
+`recursive: true` で削除するとプロセスごと落ちる**不具合がある（終了コード
+0xC0000409。エラーではなく即死するため try/catch では拾えない）。本リポジトリの
+パスは `資格問題アプリ` を含むため直撃する。
+
+Vite の `emptyOutDir` がこの API を使っており、`dist` に1ファイルでも残っていると
+`vite build` が必ず失敗する。回避のため `npm run build` の先頭で
+`scripts/clean.mjs` を実行し、`fs.rmSync` を使わずに `dist` を削除している。
+Node.js 22 に揃えればこのスクリプトは不要になる。

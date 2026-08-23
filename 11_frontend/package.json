@@ -10,14 +10,15 @@
   },
   "scripts": {
     "dev": "vite",
-    "build": "tsc -b && vite build",
+    "build": "node scripts/clean.mjs && tsc -b && vite build",
     "preview": "vite preview",
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
     "test:watch": "vitest",
     "test:e2e": "playwright test",
     "test:e2e:ui": "playwright test --ui",
-    "typecheck:e2e": "tsc --noEmit -p tsconfig.e2e.json"
+    "typecheck:e2e": "tsc --noEmit -p tsconfig.e2e.json",
+    "test:perf": "playwright test -c playwright.perf.config.ts"
   },
   "dependencies": {
     "amazon-cognito-identity-js": "^6.3.12",

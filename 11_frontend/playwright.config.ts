@@ -21,14 +21,31 @@ export default defineConfig({
     baseURL: `http://localhost:${PORT}`,
     trace: 'on-first-retry',
   },
+  /**
+   * 要件定義書 §8.4 の対応ブラウザを網羅する。
+   *
+   * Firefox は対応表に含まれないうえ、Playwright 同梱ビルドの起動に
+   * Microsoft Visual C++ 再頒布可能パッケージが必要で、未導入の Windows では
+   * `spawn UNKNOWN` で失敗する。既定では実行せず、必要なときだけ
+   * `PW_FIREFOX=1` を付けて有効化する。
+   */
   projects: [
+    // PC: Chrome
     { name: 'chromium', use: { ...devices['Desktop Chrome'] } },
+    // PC: Edge（Chromium ベースだが、実機のチャネルで確認する）
+    { name: 'edge', use: { ...devices['Desktop Edge'], channel: 'msedge' } },
+    // PC: Safari
+    { name: 'webkit', use: { ...devices['Desktop Safari'] } },
+    // スマートフォン: Android Chrome。§8.4 の下限に近い375px幅で確認する
     {
-      // スマートフォン表示。要件定義書 §8.4 の下限に近い375px幅で確認する。
-      // Safari/Firefox など他エンジンでの互換性確認は T5-3 で別途行う
       name: 'mobile',
       use: { ...devices['Pixel 5'], viewport: { width: 375, height: 812 } },
     },
+    // スマートフォン: iOS Safari 15以上
+    { name: 'mobile-safari', use: { ...devices['iPhone 13'] } },
+    ...(process.env.PW_FIREFOX
+      ? [{ name: 'firefox', use: { ...devices['Desktop Firefox'] } }]
+      : []),
   ],
   webServer: {
     command: `npm run dev -- --mode e2e --port ${PORT} --strictPort`,
