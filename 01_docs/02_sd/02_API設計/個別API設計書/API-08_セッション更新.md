@@ -6,7 +6,7 @@
 | Phase | Phase 1 |
 | 認証 | 必要（Cognito） |
 | 利用画面 | S-06（出題）, S-07（解説） |
-| 関連テーブル | OR_T_EXAM_SESSION, OR_T_ANSWER_HISTORY, OR_M_CHOICE |
+| 関連テーブル | OR_T_EXAM_SESSION, OR_T_ANSWER_HISTORY, OR_M_QUESTION, OR_M_CHOICE |
 
 ## 1. 概要
 
@@ -48,6 +48,7 @@ S-06 出題画面での1問ごとの回答をサーバーに送信し、サー�
   "questionId": "q-uuid-1",
   "isCorrect": false,
   "correctChoiceIds": ["ch-2", "ch-3"],
+  "explanation": "SELECT文の基本構文は...",
   "sessionStatus": "in_progress",
   "sessionCorrectCount": 4,
   "isLastQuestion": false
@@ -59,6 +60,7 @@ S-06 出題画面での1問ごとの回答をサーバーに送信し、サー�
 | `historyId` | String | 作成された回答履歴ID |
 | `isCorrect` | Boolean | 採点結果 |
 | `correctChoiceIds` | Array&lt;String&gt; | 正解の選択肢ID一覧（S-07 解説画面のハイライト表示に使用） |
+| `explanation` | String | 事前登録済みの解説テキスト（S-07 で表示）。未登録の場合は空文字 |
 | `sessionStatus` | String | 更新後のセッション状態 |
 | `sessionCorrectCount` | Number | ここまでの正解数累計 |
 | `isLastQuestion` | Boolean | このセッションの `totalQuestions` に達したか（S-07で「結果を見る」ボタン表示の判定に利用可能。クライアント側の出題順管理と併用） |
@@ -77,7 +79,7 @@ S-06 出題画面での1問ごとの回答をサーバーに送信し、サー�
 
 1. `sessionId` が存在し、リクエストユーザーの `userId` と `OR_T_EXAM_SESSION.userId` が一致するか検証（不一致は 403）。
 2. `OR_T_EXAM_SESSION.status` が `in_progress` であることを確認（`completed`/`expired` の場合は 409）。
-3. `questionId` に紐づく `OR_M_CHOICE` を取得し、`isCorrect=true` の選択肢ID集合を算出する。
+3. `questionId` から `OR_M_QUESTION` を取得して `explanation` を得る。あわせて `questionId` に紐づく `OR_M_CHOICE` を取得し、`isCorrect=true` の選択肢ID集合を算出する。
 4. 採点: `selectedChoiceIds` の集合と正解集合が**完全に一致**する場合のみ `isCorrect=true`（単一選択・複数選択いずれも同一ロジック。要件定義書 F-04 の「部分点なし」仕様）。
 5. `OR_T_ANSWER_HISTORY` に新規レコードを作成（`historyId` UUID採番、`sessionId`, `questionId`, `selectedChoiceIds`, `isCorrect`, `answeredAt`）。共通項目 `createdAt`/`updatedAt`=現在時刻、`createdBy`/`updatedBy`=トークンの `sub` を設定する（[テーブル一覧](../../03_データベース設計/テーブル一覧.md) §共通項目）。
 6. `isCorrect=true` の場合、`OR_T_EXAM_SESSION.correctCount` をインクリメントする。あわせて `OR_T_EXAM_SESSION` の `updatedAt`=現在時刻、`updatedBy`=トークンの `sub` を更新する（`createdAt`/`createdBy` は上書きしない）。
@@ -103,4 +105,5 @@ S-06 出題画面での1問ごとの回答をサーバーに送信し、サー�
 ## 7. 備考
 
 - 採点処理は必ずサーバー（Lambda）側で行い、クライアントには問題一覧取得時点（[API-04](API-04_ランダム出題リスト生成.md)）で正解を渡さない設計とする（不正な採点操作の防止）。
+- `correctChoiceIds` と `explanation` は**採点後にのみ**返却する。出題時（API-04）には含めないため、これらを事前に取得して不正な採点を行うことはできない。S-07 解説画面は本APIのレスポンスのみで表示を構成する。
 - 同一 `questionId` に対する重複回答送信（多重タップ等）を考慮し、`sessionId`+`questionId` の組み合わせで冪等性を担保する実装（例: 既存 `OR_T_ANSWER_HISTORY` があれば上書きせず既存結果を返す）を詳細設計で検討する。

@@ -1,0 +1,557 @@
+/*
+ * 共通スタイル。
+ *
+ * 対応設計書: 01_docs/02_sd/01_画面設計/画面一覧.md §画面共通仕様
+ *             01_docs/02_sd/04_共通設計/非機能設計.md §3
+ *
+ * - スマートフォン（5〜6.7インチ）〜PCまで1カラムを基本とするレスポンシブ構成
+ * - ダークモードはOSの prefers-color-scheme に追従する（T4-8）
+ */
+
+:root {
+  --color-bg: #f5f6f8;
+  --color-surface: #ffffff;
+  --color-text: #1c1f24;
+  --color-text-muted: #5b6470;
+  --color-border: #d4d9e0;
+  --color-primary: #1a4f8a;
+  --color-primary-text: #ffffff;
+  --color-correct: #1f7a4d;
+  --color-correct-bg: #e6f4ec;
+  --color-wrong: #b3261e;
+  --color-wrong-bg: #fce8e6;
+  --color-warning-bg: #fff4e0;
+  --color-info-bg: #e8f0fa;
+
+  color-scheme: light dark;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --color-bg: #14171c;
+    --color-surface: #1e232b;
+    --color-text: #e8eaed;
+    --color-text-muted: #9aa4b2;
+    --color-border: #333b47;
+    --color-primary: #5b9bd5;
+    --color-primary-text: #0d1117;
+    --color-correct: #6fce9f;
+    --color-correct-bg: #1b3327;
+    --color-wrong: #f2857c;
+    --color-wrong-bg: #3a1f1d;
+    --color-warning-bg: #3a2f1b;
+    --color-info-bg: #1c2a3a;
+  }
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  background: var(--color-bg);
+  color: var(--color-text);
+  font-family:
+    'Hiragino Kaku Gothic ProN',
+    'Yu Gothic',
+    Meiryo,
+    system-ui,
+    -apple-system,
+    sans-serif;
+  line-height: 1.6;
+}
+
+/* ---------------------------------------------------------------- レイアウト */
+.layout {
+  min-height: 100vh;
+}
+
+.layout__header {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1rem;
+  background: var(--color-surface);
+  border-bottom: 1px solid var(--color-border);
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
+.layout__title {
+  flex: 1;
+  margin: 0;
+  font-size: 1.05rem;
+  text-align: center;
+}
+
+.layout__back,
+.layout__signout {
+  background: none;
+  border: none;
+  color: var(--color-primary);
+  cursor: pointer;
+  font-size: 0.9rem;
+  padding: 0.25rem 0.5rem;
+}
+
+.layout__back-spacer {
+  width: 4.5rem;
+}
+
+.layout__main {
+  max-width: 40rem;
+  margin: 0 auto;
+  padding: 1rem;
+}
+
+/* ---------------------------------------------------------------- 認証画面 */
+.auth-page {
+  max-width: 24rem;
+  margin: 0 auto;
+  padding: 2rem 1rem;
+}
+
+.auth-page__title {
+  text-align: center;
+  font-size: 1.25rem;
+}
+
+.auth-form,
+.settings-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.auth-page__links {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  align-items: center;
+  margin-top: 1.5rem;
+}
+
+/* ---------------------------------------------------------------- フォーム */
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.field__label {
+  font-size: 0.875rem;
+  color: var(--color-text-muted);
+}
+
+.field__hint {
+  font-size: 0.75rem;
+  color: var(--color-text-muted);
+}
+
+.field input,
+.field select {
+  padding: 0.6rem;
+  font-size: 1rem;
+  border: 1px solid var(--color-border);
+  border-radius: 6px;
+  background: var(--color-surface);
+  color: var(--color-text);
+}
+
+/* ---------------------------------------------------------------- ボタン */
+.button {
+  padding: 0.65rem 1rem;
+  font-size: 1rem;
+  border: 1px solid var(--color-border);
+  border-radius: 6px;
+  background: var(--color-surface);
+  color: var(--color-text);
+  cursor: pointer;
+}
+
+.button--primary {
+  background: var(--color-primary);
+  color: var(--color-primary-text);
+  border-color: var(--color-primary);
+}
+
+.button--large {
+  width: 100%;
+  padding: 0.9rem 1rem;
+}
+
+.button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.link {
+  background: none;
+  border: none;
+  color: var(--color-primary);
+  cursor: pointer;
+  font-size: 0.9rem;
+  padding: 0;
+  text-decoration: underline;
+}
+
+/* ---------------------------------------------------------------- フィードバック */
+.feedback {
+  padding: 0.75rem;
+  border-radius: 6px;
+  font-size: 0.9rem;
+  margin: 0.75rem 0;
+}
+
+.feedback--error {
+  background: var(--color-wrong-bg);
+  color: var(--color-wrong);
+}
+
+.feedback--warning {
+  background: var(--color-warning-bg);
+}
+
+/* 閉じられる警告（S-06 の出題数警告）。文字と重ならないよう右側に余白を取る */
+.feedback--warning:has(.feedback__dismiss) {
+  position: relative;
+  padding-right: 2.5rem;
+}
+
+.feedback__dismiss {
+  position: absolute;
+  top: 50%;
+  right: 0.5rem;
+  transform: translateY(-50%);
+  min-width: 2rem;
+  min-height: 2rem;
+  padding: 0;
+  border: none;
+  background: none;
+  color: inherit;
+  font-size: 1.25rem;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.feedback--info {
+  background: var(--color-info-bg);
+}
+
+.feedback--loading,
+.feedback--empty {
+  color: var(--color-text-muted);
+  text-align: center;
+}
+
+.feedback__details {
+  margin: 0.5rem 0 0;
+  padding-left: 1.25rem;
+  font-size: 0.8rem;
+}
+
+/* ---------------------------------------------------------------- ホーム */
+.home__greeting {
+  text-align: center;
+  color: var(--color-text-muted);
+}
+
+.home__menu {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  margin-top: 1.5rem;
+}
+
+/* ---------------------------------------------------------------- 出題・解説 */
+.exam__status {
+  display: flex;
+  justify-content: flex-end;
+  min-height: 1.5rem;
+}
+
+.exam__timer {
+  font-variant-numeric: tabular-nums;
+  color: var(--color-text-muted);
+}
+
+.exam__question-text {
+  font-size: 1.05rem;
+  margin: 1rem 0;
+}
+
+.exam__hint {
+  color: var(--color-text-muted);
+  font-size: 0.875rem;
+}
+
+.exam__choices {
+  list-style: none;
+  padding: 0;
+  margin: 1rem 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.choice {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.6rem;
+  width: 100%;
+  padding: 0.75rem;
+  text-align: left;
+  border: 1px solid var(--color-border);
+  border-radius: 6px;
+  background: var(--color-surface);
+  color: var(--color-text);
+  font-size: 0.95rem;
+  cursor: pointer;
+}
+
+.exam__choices--readonly .choice {
+  cursor: default;
+}
+
+.choice--selected {
+  border-color: var(--color-primary);
+  box-shadow: inset 0 0 0 1px var(--color-primary);
+}
+
+.choice--correct {
+  border-color: var(--color-correct);
+  background: var(--color-correct-bg);
+}
+
+.choice__label {
+  font-weight: 700;
+  min-width: 1.25rem;
+}
+
+.choice__text {
+  flex: 1;
+}
+
+/* ユーザーが選んだが正解ではなかった選択肢（S-07 §3） */
+.choice--wrong-selection {
+  border-color: var(--color-wrong);
+  background: var(--color-wrong-bg);
+}
+
+/* 選んだ選択肢が正解でもあった場合は、正解の緑を優先しつつ枠で選択を示す */
+.choice--correct.choice--wrong-selection {
+  border-color: var(--color-correct);
+  background: var(--color-correct-bg);
+}
+
+.choice__marks {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 0.15rem;
+}
+
+.choice__mark {
+  font-size: 0.75rem;
+  white-space: nowrap;
+}
+
+.choice__mark--correct {
+  color: var(--color-correct);
+  font-weight: 700;
+}
+
+.choice__mark--selected {
+  color: var(--color-text-muted);
+}
+
+.judgement {
+  text-align: center;
+  font-size: 1.4rem;
+  font-weight: 700;
+  margin: 1rem 0;
+}
+
+.judgement--correct {
+  color: var(--color-correct);
+}
+
+.judgement--wrong {
+  color: var(--color-wrong);
+}
+
+.explanation {
+  margin-top: 1.5rem;
+  padding: 1rem;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: 6px;
+}
+
+.explanation__title {
+  margin: 0 0 0.5rem;
+  font-size: 1rem;
+}
+
+.explanation__body {
+  margin: 0;
+  white-space: pre-wrap;
+}
+
+.explanation__actions {
+  margin-top: 1.5rem;
+}
+
+/* ---------------------------------------------------------------- 結果 */
+.result__summary {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 0.75rem;
+  margin: 1rem 0;
+}
+
+.result__summary > div {
+  padding: 0.75rem;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: 6px;
+  text-align: center;
+}
+
+.result__summary dt {
+  font-size: 0.8rem;
+  color: var(--color-text-muted);
+}
+
+.result__summary dd {
+  margin: 0.25rem 0 0;
+  font-size: 1.4rem;
+  font-weight: 700;
+}
+
+.result__answers-title {
+  font-size: 1rem;
+}
+
+.result__grid {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(3.5rem, 1fr));
+  gap: 0.5rem;
+}
+
+.result__cell {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 0.4rem;
+  border-radius: 6px;
+  border: 1px solid var(--color-border);
+  font-size: 0.8rem;
+}
+
+.result__cell--clickable {
+  width: 100%;
+  border: 1px solid var(--color-border);
+  cursor: pointer;
+  font-family: inherit;
+}
+
+.result__cell--correct {
+  background: var(--color-correct-bg);
+  color: var(--color-correct);
+}
+
+.result__cell--wrong {
+  background: var(--color-wrong-bg);
+  color: var(--color-wrong);
+}
+
+.result__cell--unanswered {
+  opacity: 0.6;
+}
+
+.result__actions {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  margin-top: 1.5rem;
+}
+
+/* ---------------------------------------------------------------- 問題閲覧 */
+.browse__filters {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.browse__list {
+  list-style: none;
+  padding: 0;
+  margin: 1rem 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.browse__item {
+  display: flex;
+  gap: 0.5rem;
+  width: 100%;
+  padding: 0.75rem;
+  text-align: left;
+  border: 1px solid var(--color-border);
+  border-radius: 6px;
+  background: var(--color-surface);
+  color: var(--color-text);
+  cursor: pointer;
+  font-size: 0.9rem;
+}
+
+.browse__item-no {
+  color: var(--color-text-muted);
+  white-space: nowrap;
+}
+
+/* ---------------------------------------------------------------- モーダル */
+.modal {
+  position: fixed;
+  inset: 0;
+  background: rgb(0 0 0 / 50%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+  z-index: 100;
+}
+
+.modal__content {
+  background: var(--color-surface);
+  border-radius: 8px;
+  padding: 1.25rem;
+  width: 100%;
+  max-width: 22rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.modal__content h2 {
+  margin: 0;
+  font-size: 1.1rem;
+}
+
+/* PC表示では余白を広げる */
+@media (min-width: 48rem) {
+  .layout__main {
+    padding: 1.5rem;
+  }
+
+  .result__summary {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}

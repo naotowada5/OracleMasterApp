@@ -6,7 +6,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 Requirements (`01_docs/01_ra/requirements3.md`, v1.3) and the Phase 1 basic design (`01_docs/02_sd/`) are complete and are the source of truth for everything below. Work is tracked task-by-task in `01_docs/03_dev/開発タスク一覧.md` — check it before starting anything, and tick boxes as tasks land.
 
-Implemented so far: **`13_infra`** (AWS CDK, Step 1 complete), **`12_backend`** (Step 2 complete — all 8 Phase 1 APIs deployed to dev in ap-northeast-1), and **`14_script`** (Step 3 — question import script with 34 sample questions). `11_frontend` is still an empty placeholder.
+Implemented so far: **`13_infra`** (Step 1), **`12_backend`** (Step 2 — all 8 Phase 1 APIs deployed to dev in ap-northeast-1), **`14_script`** (Step 3 — import script with 34 sample questions), and **`11_frontend`** (Step 4 — all 9 screens, React + Vite PWA). Remaining: Step 5 (integration/E2E tests) and Step 6 (release).
 
 Root commands (repo-wide lint/format):
 
@@ -38,6 +38,16 @@ Data seeding (run inside `14_script`; see `14_script/README.md`):
 npm run validate
 npm run import:dev
 ```
+
+Frontend commands (run inside `11_frontend`):
+
+```bash
+npm run dev
+npm test
+npm run build
+```
+
+The dev server must run on port 5173 — that is the origin allowed by the dev API Gateway CORS config. Connection settings (API URL, Cognito pool/client IDs) live in `11_frontend/.env`.
 
 ## Project overview
 
