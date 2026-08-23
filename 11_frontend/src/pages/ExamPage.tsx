@@ -25,7 +25,7 @@ function formatRemaining(seconds: number): string {
 
 export function ExamPage() {
   const navigate = useNavigate();
-  const { exam, setLastResult, clearExam } = useExam();
+  const { exam, setLastResult, dismissStartupWarning, clearExam } = useExam();
 
   const [selected, setSelected] = useState<string[]>([]);
   const [error, setError] = useState<string | null>(null);
@@ -132,6 +132,21 @@ export function ExamPage() {
       <div className="exam__status">
         {isTimed && <span className="exam__timer">残り {formatRemaining(remainingSec)}</span>}
       </div>
+
+      {/* S-05 で出せなかった出題数の警告をここで伝える（S-05 §5） */}
+      {exam.startupWarning && (
+        <p className="feedback feedback--warning" role="status">
+          {exam.startupWarning}
+          <button
+            type="button"
+            className="feedback__dismiss"
+            onClick={dismissStartupWarning}
+            aria-label="警告を閉じる"
+          >
+            ×
+          </button>
+        </p>
+      )}
 
       <p className="exam__question-text">{question.questionText}</p>
 

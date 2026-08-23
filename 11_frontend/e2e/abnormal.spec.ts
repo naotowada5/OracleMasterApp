@@ -37,28 +37,39 @@ test.describe('S-05 出題設定', () => {
     expect(api.callsTo('POST', '/sessions')).toHaveLength(0);
   });
 
-  test('対象問題が指定数に満たない場合は警告を出しつつ継続する', async ({ page, api }) => {
-    // 警告は API-07 の応答待ちの間だけ表示され、直後に S-06 へ遷移してしまう。
-    // 観測できるようにセッション作成の応答を遅らせる
-    api.stub({ method: 'POST', path: '/sessions' }, async (route) => {
-      await new Promise((resolve) => setTimeout(resolve, 1500));
-      await route.fulfill({
-        status: 200,
-        contentType: 'application/json',
-        body: JSON.stringify(data.createdSession),
-      });
-    });
-
+  test('対象問題が指定数に満たない場合は警告を持ち越して出題を継続する', async ({ page }) => {
     await page.goto('/exam/settings');
     await page.getByLabel('出題数').fill('50');
     await page.getByRole('button', { name: '出題開始' }).click();
 
-    // モックは2問しか返さない
-    await expect(page.getByText('対象の問題が2問しかないため、2問で出題します')).toBeVisible();
-
-    // 警告を出しても処理は中断しない
+    // 警告を出しても処理は中断しない（S-05 §5）
     await expect(page).toHaveURL(/\/exam$/);
     await expect(page.getByRole('heading', { name: '問題 1 / 2' })).toBeVisible();
+
+    // S-05 に留まらないため、警告は S-06 で読める
+    const warning = page.getByText('対象の問題が2問しかないため、2問で出題します');
+    await expect(warning).toBeVisible();
+
+    // 読み終えたら閉じられる
+    await page.getByRole('button', { name: '警告を閉じる' }).click();
+    await expect(warning).toHaveCount(0);
+
+    // 次の問題へ進んでも再表示されない
+    await page.getByRole('button', { name: /正しい記述その1/ }).click();
+    await page.getByRole('button', { name: /正しい記述その2/ }).click();
+    await page.getByRole('button', { name: '決定' }).click();
+    await page.getByRole('button', { name: '次の問題へ' }).click();
+    await expect(page.getByRole('heading', { name: '問題 2 / 2' })).toBeVisible();
+    await expect(warning).toHaveCount(0);
+  });
+
+  test('出題数が足りている場合は警告を出さない', async ({ page }) => {
+    await page.goto('/exam/settings');
+    await page.getByLabel('出題数').fill('2');
+    await page.getByRole('button', { name: '出題開始' }).click();
+
+    await expect(page.getByRole('heading', { name: '問題 1 / 2' })).toBeVisible();
+    await expect(page.locator('.feedback--warning')).toHaveCount(0);
   });
 
   test('APIエラー時は画面に留まりメッセージを出す', async ({ page, api }) => {

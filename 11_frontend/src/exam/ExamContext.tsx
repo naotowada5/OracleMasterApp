@@ -33,6 +33,12 @@ export interface ExamState {
   lastResult: AnswerResult | null;
   /** 直前にユーザーが選んだ選択肢ID。S-07 で誤答をハイライトするために保持する */
   lastSelectedChoiceIds: string[];
+  /**
+   * 出題開始時の警告（S-05 §5「対象の問題が◯問しかないため…」）。
+   * S-05 で表示しても直後に S-06 へ遷移するため読めない。設計上「処理は継続」
+   * なので、遷移を止めずに S-06 側で伝える。
+   */
+  startupWarning: string | null;
 }
 
 interface ExamContextValue {
@@ -41,6 +47,8 @@ interface ExamContextValue {
   startExam: (
     state: Omit<ExamState, 'currentIndex' | 'startedAtMs' | 'lastResult' | 'lastSelectedChoiceIds'>,
   ) => void;
+  /** S-06 で警告を読み終えたら消す */
+  dismissStartupWarning: () => void;
   /** S-06 で回答送信後、採点結果と選択内容を保持する */
   setLastResult: (result: AnswerResult, selectedChoiceIds: string[]) => void;
   /** S-07 の「次の問題へ」で呼ぶ */
@@ -92,11 +100,31 @@ export function ExamProvider({ children }: { children: ReactNode }) {
     );
   }, []);
 
+  const dismissStartupWarning = useCallback(() => {
+    setExam((current) => (current ? { ...current, startupWarning: null } : current));
+  }, []);
+
   const clearExam = useCallback(() => setExam(null), []);
 
   const value = useMemo(
-    () => ({ exam, startExam, setLastResult, goToNextQuestion, clearExam, lastSettings }),
-    [exam, startExam, setLastResult, goToNextQuestion, clearExam, lastSettings],
+    () => ({
+      exam,
+      startExam,
+      setLastResult,
+      goToNextQuestion,
+      dismissStartupWarning,
+      clearExam,
+      lastSettings,
+    }),
+    [
+      exam,
+      startExam,
+      setLastResult,
+      goToNextQuestion,
+      dismissStartupWarning,
+      clearExam,
+      lastSettings,
+    ],
   );
 
   return <ExamContext.Provider value={value}>{children}</ExamContext.Provider>;

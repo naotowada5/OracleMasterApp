@@ -111,13 +111,19 @@ npm run test:perf
 
 ## PWAアイコン
 
-`public/icons/` の2ファイルは `scripts/generate-icons.mjs` で生成した**暫定版**。
-テーマカラーの背景に「OM」を置いただけのもので、リリース前に本デザインへ
-差し替える。再生成は次のコマンド。
+`public/icons/` の2ファイルは `scripts/generate-icons.mjs` で生成している。
+画像ライブラリを増やさずに済むよう、Node標準の zlib だけでPNGを組み立て、
+4倍のスーパーサンプリングで輪郭を滑らかにしている。
 
 ```bash
-node scripts/generate-icons.mjs
+node scripts/generate-icons.mjs          # 採用案を public/icons/ へ出力
+node scripts/generate-icons.mjs --all    # 全案を public/icons/candidates/ へ出力
 ```
+
+採用しているのは「問題カード＋チェック」（`card`）。デザインを変える場合は
+スクリプト内の `DESIGNS` に追加し、`ADOPTED` を差し替える。色は `global.css`
+の `--color-primary` / `--color-correct` と揃えてある。maskable アイコンでは
+外周が切り取られるため、要素は中央80%に収めること。
 
 ## 既知の環境問題（Windows + Node.js 24）
 

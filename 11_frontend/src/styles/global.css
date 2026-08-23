@@ -214,6 +214,28 @@ body {
   background: var(--color-warning-bg);
 }
 
+/* 閉じられる警告（S-06 の出題数警告）。文字と重ならないよう右側に余白を取る */
+.feedback--warning:has(.feedback__dismiss) {
+  position: relative;
+  padding-right: 2.5rem;
+}
+
+.feedback__dismiss {
+  position: absolute;
+  top: 50%;
+  right: 0.5rem;
+  transform: translateY(-50%);
+  min-width: 2rem;
+  min-height: 2rem;
+  padding: 0;
+  border: none;
+  background: none;
+  color: inherit;
+  font-size: 1.25rem;
+  line-height: 1;
+  cursor: pointer;
+}
+
 .feedback--info {
   background: var(--color-info-bg);
 }

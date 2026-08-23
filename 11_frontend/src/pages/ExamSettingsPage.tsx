@@ -99,9 +99,14 @@ export function ExamSettingsPage() {
         ...(requestedCount === undefined ? {} : { questionCount: requestedCount }),
       });
 
-      // 対象問題が指定数に満たない場合は警告を出しつつ処理を継続する（S-05 §5）
-      if (requestedCount !== undefined && actualCount < requestedCount) {
-        setWarning(`対象の問題が${actualCount}問しかないため、${actualCount}問で出題します`);
+      // 対象問題が指定数に満たない場合は警告を出しつつ処理を継続する（S-05 §5）。
+      // この画面に留まらないため、警告は S-06 へ持ち越して表示する
+      const shortageWarning =
+        requestedCount !== undefined && actualCount < requestedCount
+          ? `対象の問題が${actualCount}問しかないため、${actualCount}問で出題します`
+          : null;
+      if (shortageWarning) {
+        setWarning(shortageWarning);
       }
 
       const limit = timeLimitMin === '' ? 0 : Number(timeLimitMin);
@@ -124,6 +129,7 @@ export function ExamSettingsPage() {
           timeLimitMin: limit,
         },
         questions,
+        startupWarning: shortageWarning,
       });
 
       navigate('/exam');
